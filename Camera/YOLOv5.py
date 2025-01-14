@@ -1,23 +1,24 @@
 import sys
-sys.path.append(r'c:\Users\haako\OneDrive\Documents\Skole\Bachelor\Bachelor\yolov5')
-
-from yolov5.models.common import DetectMultiBackend
-# Add the rest of your code here
-
 import cv2
 import torch
-from yolov5.models.common import DetectMultiBackend
-from yolov5.utils.dataloaders import LoadImages
-from yolov5.utils.general import non_max_suppression, scale_coords
+
+path_to_append = r'c:\Users\haako\OneDrive\Documents\Skole\Bachelor\Bachelor\yolov5'
+if path_to_append not in sys.path:
+    sys.path.append(path_to_append)
+
+
+from yolov5.utils.general import non_max_suppression  # Removed scale_coords (deprecated)
 from yolov5.utils.plots import Annotator, colors
 
 # Load YOLOv5 model
-model_path = "yolov5s.pt"  # Use the appropriate YOLOv5 model (s, m, l, or custom)
+model_path = "yolov5s.pt"  # Replace with your model path if different
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=True)
+
+# Load the YOLOv5 model from Torch Hub
+model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
 # Open the camera
-cap = cv2.VideoCapture(0)  # Change to 1 or another number if you have multiple cameras
+cap = cv2.VideoCapture(0)  # Replace 0 with the appropriate index for your camera
 
 if not cap.isOpened():
     print("Error: Could not open camera.")
@@ -30,14 +31,14 @@ while cap.isOpened():
         print("Error: Could not read frame.")
         break
 
-    # Inference
+    # Convert the frame to a tensor and perform inference
     results = model(frame)
 
-    # Annotate the frame
-    frame = results.render()[0]
+    # Annotate the frame with detection results
+    annotated_frame = results.render()[0]
 
-    # Display the frame
-    cv2.imshow("YOLOv5 Detection", frame)
+    # Display the annotated frame
+    cv2.imshow("YOLOv5 Detection", annotated_frame)
 
     # Break the loop on 'q' key press
     if cv2.waitKey(1) & 0xFF == ord('q'):
