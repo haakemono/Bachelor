@@ -1,14 +1,18 @@
 import sys
+import os
 import cv2
 import torch
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
-path_to_append = r'c:\Users\haako\OneDrive\Documents\Skole\Bachelor\Bachelor\yolov5'
-if path_to_append not in sys.path:
-    sys.path.append(path_to_append)
+# Dynamically locate the yolov5 directory
+yolov5_dir = os.path.abspath(r'C:\Users\haako\OneDrive\Documents\Skole\Bachelor\Bachelor\Camera\yolov5')
+if yolov5_dir not in sys.path:
+    sys.path.append(yolov5_dir)
 
-
-from yolov5.utils.general import non_max_suppression  # Removed scale_coords (deprecated)
+from yolov5.utils.general import non_max_suppression
 from yolov5.utils.plots import Annotator, colors
+
 
 # Load YOLOv5 model
 model_path = "yolov5s.pt"  # Replace with your model path if different
