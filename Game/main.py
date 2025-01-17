@@ -3,6 +3,7 @@ import pygame
 from difficulty_manager import DifficultyManager
 from hand_tracking import HandTracker
 from game_logic import GameLogic
+from game_logic import APPLE_RADIUS, BOMB_RADIUS
 
 # Pygame setup
 WIDTH = 1000
@@ -55,20 +56,28 @@ def main():
             new_apple_interval = params["new_apple_interval"]
             new_bomb_interval = params["new_bomb_interval"]
 
-            # Spawn apples and bombs
+            # Spawn apples
             if game_state["frame_count"] % new_apple_interval == 0:
-                game_logic.spawn_apple(game_state["apples"])
+                game_logic.spawn_object(game_state["apples"], APPLE_RADIUS)
                 difficulty_manager.track_performance()  # Track apple spawn
 
+            # Spawn bombs
             if game_state["frame_count"] % new_bomb_interval == 0:
-                game_logic.spawn_bomb(game_state["bombs"])
+                game_logic.spawn_object(game_state["bombs"], BOMB_RADIUS)
 
             # Update apples and bombs
             game_logic.update_objects(game_state["apples"], game_state["bombs"], apple_fall_speed)
 
             # Check for collisions
-            game_logic.check_collisions(game_state, difficulty_manager)
+            # Handle collisions for apples
+            game_logic.handle_collisions(
+                game_state["apples"], game_state, difficulty_manager, is_apple=True
+            )
 
+            # Handle collisions for bombs
+            game_logic.handle_collisions(
+                game_state["bombs"], game_state, difficulty_manager, is_apple=False
+            )
             # Adjust difficulty every few frames
             if game_state["frame_count"] % 600 == 0:
                 difficulty_manager.adjust_difficulty()
