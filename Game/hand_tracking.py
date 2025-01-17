@@ -64,5 +64,8 @@ class HandTracker:
         """
         Releases the camera and closes the MediaPipe hands instance.
         """
-        self.cap.release()
-        self.hands.close()
+        if self.cap.isOpened():
+            self.cap.release()
+        if self.hands is not None:
+            self.hands.close()
+            self.hands = None
