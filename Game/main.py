@@ -4,6 +4,8 @@ from logic import reset_game, spawn_object, update_objects, handle_collisions
 from render import draw_window, draw_fps
 from constants import WIDTH, HEIGHT, FPS, APPLE_RADIUS, BOMB_RADIUS
 from hand_tracking import HandTracker
+from difficulty_manager import DifficultyManager  # Ensure this line is present
+
 
 # Initialize Pygame
 pygame.init()  # Initialize all Pygame modules
@@ -15,7 +17,6 @@ BG = pygame.transform.scale(pygame.image.load("img/background.jpg"), (WIDTH, HEI
 clock = pygame.time.Clock()
 
 def main():
-    """Main game loop."""
     # Initialize game state
     game_state = reset_game()
 
@@ -25,9 +26,11 @@ def main():
     # Initialize HandTracker
     hand_tracker = HandTracker(WIDTH)
 
+    # Initialize DifficultyManager
+    difficulty_manager = DifficultyManager()
+
     try:
         while True:
-            # Limit frame rate
             clock.tick(FPS)
             game_state["frame_count"] += 1
 
@@ -45,7 +48,6 @@ def main():
                 WIN.blit(game_over_text, (WIDTH // 2 - 150, HEIGHT // 2 - 50))
                 pygame.display.update()
 
-                # Wait for quit event
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
@@ -58,31 +60,57 @@ def main():
             if basket_x is not None:
                 game_state["player"].x = basket_x - game_state["player"].width // 2
 
-            # Ensure basket stays within bounds
             game_state["player"].x = max(0, min(WIDTH - game_state["player"].width, game_state["player"].x))
 
-            # Spawn objects
-            if game_state["frame_count"] % 180 == 0:
+            # Get current game parameters
+            params = difficulty_manager.get_game_parameters()
+            apple_fall_speed = params["apple_fall_speed"]
+            new_apple_interval = params["new_apple_interval"]
+            new_bomb_interval = params["new_bomb_interval"]
+
+            # Game logic
+            if game_state["frame_count"] % new_apple_interval == 0:
                 spawn_object(game_state["apples"], APPLE_RADIUS, game_state)
 
-            if game_state["frame_count"] % 300 == 0:
+            if game_state["frame_count"] % new_bomb_interval == 0:
                 spawn_object(game_state["bombs"], BOMB_RADIUS)
 
-            # Update objects
-            update_objects(game_state["apples"], 3, game_state)  # Pass game_state for apples
-            update_objects(game_state["bombs"], 4)  # No game_state needed for bombs
+            update_objects(
+                game_state["apples"],
+                apple_fall_speed,
+                game_state,
+                difficulty_manager
+            )
+            update_objects(
+                game_state["bombs"],
+                4  # Bomb fall speed
+            )
 
-            # Handle collisions
-            handle_collisions(game_state["apples"], game_state["player"], game_state, score_increment=1, life_decrement=0)
-            handle_collisions(game_state["bombs"], game_state["player"], game_state, score_increment=0, life_decrement=1)
+            handle_collisions(
+                game_state["apples"],
+                game_state["player"],
+                game_state,
+                difficulty_manager,
+                score_increment=1,
+                life_decrement=0,
+            )
+            handle_collisions(
+                game_state["bombs"],
+                game_state["player"],
+                game_state,
+                difficulty_manager=None,  # No performance tracking for bombs
+                score_increment=0,
+                life_decrement=1,
+            )
 
+            # Adjust difficulty every few frames
+            if game_state["frame_count"] % (FPS * 2) == 0:  # Every 2 seconds
+                difficulty_manager.adjust_difficulty()
 
-            # Calculate accuracy
+            # Render game
             true_score = game_state["true_score"]
             score = game_state["score"]
             accuracy = (score / true_score * 100) if true_score > 0 else 0
-
-            # Render game
             draw_window(
                 WIN,
                 BG,
@@ -92,7 +120,7 @@ def main():
                 score,
                 true_score,
                 accuracy,
-                game_state["lives"]
+                game_state["lives"],
             )
             draw_fps(WIN, clock, font)
 
