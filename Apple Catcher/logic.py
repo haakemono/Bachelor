@@ -1,17 +1,26 @@
-# game_logic.py
 import pygame
-from constants import WIDTH, HEIGHT, FONT, APPLE_RADIUS, BOMB_RADIUS
+from constants import PLAYER_HEIGHT, PLAYER_WIDTH, WIDTH, HEIGHT, FONT, APPLE_RADIUS, BOMB_RADIUS
 
 def draw(player, apples, bombs, score, lives, game_over):
     WIN = pygame.display.get_surface()
-    WIN.blit(pygame.transform.scale(pygame.image.load("img/background.jpg"), (WIDTH, HEIGHT)), (0, 0))
-    pygame.draw.rect(WIN, "brown", player)
+    WIN.blit(pygame.transform.scale(pygame.image.load("img/background.png"), (WIDTH, HEIGHT)), (0, 0))
+
+    player_image = pygame.image.load("img/player.png")  
+    player_image = pygame.transform.scale(player_image, (PLAYER_WIDTH, PLAYER_HEIGHT))
+
+    WIN.blit(player_image, (player.x, player.y))  # Display the player at its position
+
+
+    apple_image = pygame.image.load ("img/apple.png")
+    bomb_image = pygame.image.load ("img/bomb.png")
 
     for apple in apples:
-        pygame.draw.circle(WIN, "red", (apple[0], apple[1]), APPLE_RADIUS)
+        apple_scaled = pygame.transform.scale(apple_image, (APPLE_RADIUS * 2, APPLE_RADIUS * 2))
+        WIN.blit(apple_scaled, (apple[0] - APPLE_RADIUS, apple[1] - APPLE_RADIUS))
     
     for bomb in bombs:
-        pygame.draw.circle(WIN, "blue", (bomb[0], bomb[1]), BOMB_RADIUS)
+        bomb_scaled = pygame.transform.scale(bomb_image, (BOMB_RADIUS * 2, BOMB_RADIUS * 2))
+        WIN.blit(bomb_scaled, (bomb[0] - BOMB_RADIUS, bomb[1] - BOMB_RADIUS))
 
     if game_over:
         game_over_text = FONT.render("GAME OVER", True, "red")
