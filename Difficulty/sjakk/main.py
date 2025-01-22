@@ -63,6 +63,7 @@ def main():
     
     # Variables for smoothing (ADDED)
     smoothed_x, smoothed_y = SCREEN_SIZE // 2, SCREEN_SIZE // 2  # Start in the center
+    #----------------------------------------------SENSITIVITET PÅ KAMERAET----------------------------------------------------#
     alpha = 0.9  # Smoothing factor (higher = less smoothing)
 
     clock = pygame.time.Clock()
@@ -83,8 +84,8 @@ def main():
             smoothed_y = int(alpha * dot_y + (1 - alpha) * smoothed_y)
 
             # Ensure dot stays within the chessboard boundaries (ADDED)
-            x_min, x_max = 0, SCREEN_SIZE - SQUARE_SIZE
-            y_min, y_max = 0, SCREEN_SIZE - SQUARE_SIZE
+            x_min, x_max = 0, SCREEN_SIZE - 1
+            y_min, y_max = 0, SCREEN_SIZE - 1
             smoothed_x = max(x_min, min(x_max, smoothed_x))
             smoothed_y = max(y_min, min(y_max, smoothed_y))
 
