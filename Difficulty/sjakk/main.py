@@ -3,12 +3,13 @@ import chess
 from chessboard import ChessBoard
 from engine import ChessEngine
 from evaluation_bar import EvaluationBar
-
+from handtracking import HandTracker
 # Constants
 ASSETS_PATH = "assets"
 SQUARE_SIZE = 80
 SCREEN_SIZE = SQUARE_SIZE * 8
 BAR_WIDTH = 20
+HOVER_TIME_TRESHOLD = 3
 
 def evaluate_board(engine):
     """
@@ -38,146 +39,130 @@ def evaluate_board(engine):
             evaluation += value if piece.color else -value
     return evaluation
 
-def draw_promotion_menu(screen, color, square_size):
-    """
-    Draws the promotion menu for selecting a piece.
-
-    Args:
-        screen (pygame.Surface): The game screen.
-        color (str): 'w' for white, 'b' for black.
-        square_size (int): Size of a chess square.
-
-    Returns:
-        dict: A dictionary mapping piece type to rect for click detection.
-    """
-    pieces = ['q', 'r', 'b', 'n']  # Queen, Rook, Bishop, Knight
-    piece_rects = {}
-    menu_width = len(pieces) * square_size
-    menu_x = (SCREEN_SIZE - menu_width) // 2
-    menu_y = (SCREEN_SIZE - square_size) // 2
-
-    # Draw each piece option
-    for i, piece in enumerate(pieces):
-        piece_image = pygame.image.load(f"{ASSETS_PATH}/{color}{piece}.png")
-        piece_image = pygame.transform.scale(piece_image, (square_size, square_size))
-        rect = pygame.Rect(menu_x + i * square_size, menu_y, square_size, square_size)
-        screen.blit(piece_image, rect.topleft)
-        piece_rects[piece] = rect
-
-    pygame.display.flip()
-    return piece_rects
-
 def main():
+    # Initialize pygame
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_SIZE + BAR_WIDTH, SCREEN_SIZE))
     pygame.display.set_caption("Chess")
 
+    # Initialize chess engine
     engine = ChessEngine()
+
+    # Initialize chessboard, evaluation bar, and hand tracker (ADDED)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)
     evaluation_bar = EvaluationBar(screen, SCREEN_SIZE, SCREEN_SIZE, BAR_WIDTH)
+    hand_tracker = HandTracker(width=SCREEN_SIZE)  # ADDED
 
+    # Variables for hovering logic (ADDED)
+    hover_start_time = None
+    hovered_square = None
     selected_square = None
     valid_moves = []
     running = True
     game_over = False
-    promotion_menu = None
-    move = None
+    
+    # Variables for smoothing (ADDED)
+    smoothed_x, smoothed_y = SCREEN_SIZE // 2, SCREEN_SIZE // 2  # Start in the center
+    alpha = 0.9  # Smoothing factor (higher = less smoothing)
+
+    clock = pygame.time.Clock()
+    frame_count = 0  # Frame counter for optimizations
 
     while running:
+        frame_count += 1
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
-            if not game_over:
-                if promotion_menu:
-                    # Handle promotion menu selection
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        mouse_x, mouse_y = event.pos
-                        for piece, rect in promotion_menu.items():
-                            if rect.collidepoint(mouse_x, mouse_y):
-                                promotion_map = {'q': chess.QUEEN, 'r': chess.ROOK, 'b': chess.BISHOP, 'n': chess.KNIGHT}
-                                move.promotion = promotion_map[piece]
-                                if engine.make_move(move.uci()):
-                                    print(f"Move {move.uci()} executed with promotion to {piece.upper()}")
-                                    # Check for threefold repetition
-                                    if engine.board.is_repetition(3):
-                                        print("Threefold repetition detected. The game is a draw.")
-                                        game_over = True
-                                promotion_menu = None
-                                selected_square = None
-                                valid_moves = []
-                                break
-                else:
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        mouse_x, mouse_y = event.pos
-                        if mouse_x < SCREEN_SIZE:
-                            col = mouse_x // SQUARE_SIZE
-                            row = mouse_y // SQUARE_SIZE
-                            square = chess.square(col, 7 - row)
+        # Get the hand position (ADDED)
+        player_position = hand_tracker.get_player_position()
+        if player_position:
+            dot_x, dot_y = player_position
+            smoothed_x = int(alpha * dot_x + (1 - alpha) * smoothed_x)  # ADDED: Smoothing
+            smoothed_y = int(alpha * dot_y + (1 - alpha) * smoothed_y)
 
-                            piece = engine.board.piece_at(square)
-                            if piece and ((piece.color and engine.turn == "white") or (not piece.color and engine.turn == "black")):
-                                selected_square = square
-                                valid_moves = [move.to_square for move in engine.board.legal_moves if move.from_square == square]
-                            elif square in valid_moves:
-                                move = chess.Move(from_square=selected_square, to_square=square)
+            # Ensure dot stays within the chessboard boundaries (ADDED)
+            x_min, x_max = 0, SCREEN_SIZE - SQUARE_SIZE
+            y_min, y_max = 0, SCREEN_SIZE - SQUARE_SIZE
+            smoothed_x = max(x_min, min(x_max, smoothed_x))
+            smoothed_y = max(y_min, min(y_max, smoothed_y))
 
-                                if engine.board.piece_at(selected_square).piece_type == chess.PAWN and chess.square_rank(move.to_square) in [0, 7]:
-                                    promotion_menu = draw_promotion_menu(screen, 'w' if engine.board.turn else 'b', SQUARE_SIZE)
-                                else:
-                                    if engine.make_move(move.uci()):
-                                        print(f"Move {move.uci()} executed")
-                                        # Check for threefold repetition
-                                        if engine.board.is_repetition(3):
-                                            print("Threefold repetition detected. The game is a draw.")
-                                            game_over = True
+            # Map smoothed dot position to chessboard square (ADDED)
+            col = smoothed_x // SQUARE_SIZE
+            row = smoothed_y // SQUARE_SIZE
+            square = chess.square(col, 7 - row)
 
-                                        if engine.is_game_over():
-                                            game_over = True
-                                            print("Game Over:", engine.get_game_result())
+            # Hovering logic (ADDED)
+            if hovered_square == square:
+                if hover_start_time is None:
+                    hover_start_time = pygame.time.get_ticks()  # Start hovering timer
+                elif pygame.time.get_ticks() - hover_start_time >= 2000:  # Hover for 2 seconds
+                    if selected_square is None:
+                        # Select the piece
+                        piece = engine.board.piece_at(square)
+                        if piece and ((piece.color and engine.turn == "white") or (not piece.color and engine.turn == "black")):
+                            selected_square = square
+                            valid_moves = [move.to_square for move in engine.board.legal_moves if move.from_square == square]
+                    else:
+                        # Make the move
+                        if square in valid_moves:
+                            move = chess.Move(from_square=selected_square, to_square=square)
+                            if engine.make_move(move.uci()):
+                                if engine.is_game_over():
+                                    game_over = True
+                        selected_square = None
+                        valid_moves = []
+                    hover_start_time = None  # Reset hover timer
+            else:
+                hovered_square = square
+                hover_start_time = pygame.time.get_ticks()
 
-                                selected_square = None
-                                valid_moves = []
-                            else:
-                                selected_square = None
-                                valid_moves = []
 
-        # Draw the chessboard
-        if not promotion_menu:
+        # Redraw chessboard every second frame (MODIFIED: Optimization)
+        if frame_count % 2 == 0:
+            screen.fill((0, 0, 0))  # Clear the screen
             chessboard.draw(screen)
 
-            if selected_square is not None:
-                selected_row, selected_col = 7 - chess.square_rank(selected_square), chess.square_file(selected_square)
-                pygame.draw.rect(
+        # Highlight selected square and valid moves (MODIFIED)
+        if selected_square is not None:
+            selected_row, selected_col = 7 - chess.square_rank(selected_square), chess.square_file(selected_square)
+            pygame.draw.rect(
+                screen,
+                (255, 255, 0, 100),
+                pygame.Rect(selected_col * SQUARE_SIZE, selected_row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE),
+                5,
+            )
+            for move in valid_moves:
+                move_row, move_col = 7 - chess.square_rank(move), chess.square_file(move)
+                pygame.draw.circle(
                     screen,
-                    (255, 255, 0, 100),
-                    pygame.Rect(selected_col * SQUARE_SIZE, selected_row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE),
-                    5,
+                    (0, 255, 0, 150),
+                    (move_col * SQUARE_SIZE + SQUARE_SIZE // 2, move_row * SQUARE_SIZE + SQUARE_SIZE // 2),
+                    10,
                 )
 
-                for move in valid_moves:
-                    move_row, move_col = 7 - chess.square_rank(move), chess.square_file(move)
-                    pygame.draw.circle(
-                        screen,
-                        (0, 255, 0, 150),
-                        (move_col * SQUARE_SIZE + SQUARE_SIZE // 2, move_row * SQUARE_SIZE + SQUARE_SIZE // 2),
-                        10,
-                    )
+            # Draw the dot representing hand position (ADDED)
+        if player_position:
+            pygame.draw.circle(screen, (255, 0, 0), (smoothed_x, smoothed_y), 15)
+        # Draw the evaluation bar
+        evaluation = evaluate_board(engine)
+        evaluation_bar.draw(evaluation)
 
-            evaluation = evaluate_board(engine)
-            evaluation_bar.draw(evaluation)
+        # Display game-over message
+        if game_over:
+            font = pygame.font.Font(None, 74)
+            result = engine.get_game_result()
+            message = "Checkmate!" if result in ["1-0", "0-1"] else "Stalemate!"
+            text = font.render(message, True, (255, 0, 0))
+            text_rect = text.get_rect(center=(SCREEN_SIZE // 2, SCREEN_SIZE // 2))
+            screen.blit(text, text_rect)
 
-            if game_over:
-                font = pygame.font.Font(None, 74)
-                message = "Draw by repetition" if engine.board.is_repetition(3) else "Game Over"
-                text = font.render(message, True, (255, 0, 0))
-                text_rect = text.get_rect(center=(SCREEN_SIZE // 2, SCREEN_SIZE // 2))
-                screen.blit(text, text_rect)
-
+        # Update display
         pygame.display.flip()
 
-    pygame.quit()
 
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
