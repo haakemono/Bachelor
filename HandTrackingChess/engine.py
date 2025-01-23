@@ -1,85 +1,42 @@
-import chess
+import chess.engine
+stockfish_path = r"C:\Users\haako\Downloads\stockfish-windows-x86-64\stockfish\stockfish-windows-x86-64.exe"
 
 class ChessEngine:
-    def __init__(self):
+    def __init__(self, stockfish_path):
         self.board = chess.Board()
-        self.turn = "white"
+        self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
 
-    def display_board(self):
+    def make_move(self, uci_move):
         """
-        Print the current board state to the console.
+        Makes a move on the board.
         """
-        print(self.board)
+        move = chess.Move.from_uci(uci_move)
+        if move in self.board.legal_moves:
+            self.board.push(move)
+            return True
+        return False
 
-    def get_valid_moves(self, square):
+    def get_best_move(self):
         """
-        Get a list of all valid moves for a specific square.
-
-        Args:
-            square (int): The square index (0-63) to get valid moves for.
-
-        Returns:
-            list: A list of target squares (int) that the piece on the given square can move to.
+        Uses Stockfish to calculate the best move for the current board state.
         """
-        return [move.to_square for move in self.board.legal_moves if move.from_square == square]
-
-    def make_move(self, move_uci):
-        """
-        Execute a move if it is valid, handling pawn promotion.
-
-        Args:
-            move_uci (str): The move in UCI format (e.g., 'e7e8q').
-
-        Returns:
-            bool: True if the move was successful, False otherwise.
-        """
-        try:
-            move = chess.Move.from_uci(move_uci)
-            if move in self.board.legal_moves:
-                # Check for pawn promotion
-                if self.board.piece_at(move.from_square).piece_type == chess.PAWN:
-                    if chess.square_rank(move.to_square) in [0, 7]:  # Promotion rank
-                        move.promotion = chess.QUEEN  # Default to queen promotion
-                self.board.push(move)
-                self.turn = "black" if self.turn == "white" else "white"
-                return True
-            else:
-                print(f"Illegal move: {move_uci}")
-                return False
-        except ValueError:
-            print(f"Invalid move format: {move_uci}")
-            return False
-
-
+        result = self.engine.play(self.board, chess.engine.Limit(time=1.0))  # 1 second think time
+        return result.move
 
     def is_game_over(self):
         """
-        Check if the game is over.
-
-        Returns:
-            bool: True if the game is over, False otherwise.
+        Checks if the game is over.
         """
         return self.board.is_game_over()
 
     def get_game_result(self):
         """
-        Get the result of the game if it is over.
-
-        Returns:
-            str: The result of the game ('1-0', '0-1', '1/2-1/2', or 'Game in progress').
+        Returns the result of the game if it's over.
         """
-        if self.board.is_game_over():
-            return self.board.result()
-        return "Game in progress"
+        return self.board.result()
 
-    def get_piece_at(self, square):
+    def close(self):
         """
-        Get the piece at a specific square.
-
-        Args:
-            square (int): The square index (0-63).
-
-        Returns:
-            chess.Piece or None: The piece on the given square, or None if empty.
+        Shuts down the Stockfish engine.
         """
-        return self.board.piece_at(square)
+        self.engine.quit()
