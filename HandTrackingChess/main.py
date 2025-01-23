@@ -60,6 +60,7 @@ def main():
 
     smoothed_x, smoothed_y = SCREEN_SIZE // 2, SCREEN_SIZE // 2
     alpha = 0.9
+    last_hand_position = (SCREEN_SIZE // 2, SCREEN_SIZE // 2)  # Initialize the last known hand position
 
     clock = pygame.time.Clock()
 
@@ -90,42 +91,51 @@ def main():
             # Get the hand position
             player_position = hand_tracker.get_player_position()
             if player_position:
-                dot_x, dot_y = player_position
-                smoothed_x = int(alpha * dot_x + (1 - alpha) * smoothed_x)
-                smoothed_y = int(alpha * dot_y + (1 - alpha) * smoothed_y)
+                # Update the last known hand position
+                last_hand_position = player_position
 
-                # Ensure the dot stays within the chessboard boundaries
-                smoothed_x = max(0, min(SCREEN_SIZE - 1, smoothed_x))
-                smoothed_y = max(0, min(SCREEN_SIZE - 1, smoothed_y))
+            # Use the last known position for smoothing
+            dot_x, dot_y = last_hand_position
+            smoothed_x = int(alpha * dot_x + (1 - alpha) * smoothed_x)
+            smoothed_y = int(alpha * dot_y + (1 - alpha) * smoothed_y)
 
-                # Map smoothed dot position to chessboard square
-                col = smoothed_x // SQUARE_SIZE
-                row = smoothed_y // SQUARE_SIZE
-                square = chess.square(col, 7 - row)
+            # Ensure the dot stays within the chessboard boundaries
+            smoothed_x = max(0, min(SCREEN_SIZE - 1, smoothed_x))
+            smoothed_y = max(0, min(SCREEN_SIZE - 1, smoothed_y))
 
-                # Hovering logic
-                if hovered_square == square:
-                    if hover_start_time is None:
-                        hover_start_time = pygame.time.get_ticks()
-                    elif pygame.time.get_ticks() - hover_start_time >= 2000:
-                        if selected_square is None:
-                            piece = engine.board.piece_at(square)
-                            if piece and piece.color == chess.WHITE:  # Only allow white moves
-                                selected_square = square
-                                valid_moves = [move.to_square for move in engine.board.legal_moves if move.from_square == square]
-                        else:
-                            if square in valid_moves:
-                                move = chess.Move(from_square=selected_square, to_square=square)
-                                if engine.make_move(move.uci()):
-                                    if engine.is_game_over():
-                                        game_over = True
-                                    player_turn = False  # Switch to bot's turn
-                                    selected_square = None
-                                    valid_moves = []
-                        hover_start_time = None
-                else:
-                    hovered_square = square
+            # Map smoothed dot position to chessboard square
+            col = smoothed_x // SQUARE_SIZE
+            row = smoothed_y // SQUARE_SIZE
+            square = chess.square(col, 7 - row)
+
+            # Hovering logic
+            if hovered_square == square:
+                if hover_start_time is None:
                     hover_start_time = pygame.time.get_ticks()
+                elif pygame.time.get_ticks() - hover_start_time >= 2000:
+                    piece = engine.board.piece_at(square)
+                    if selected_square is None:
+                        # Select a new piece if none is currently selected
+                        if piece and piece.color == chess.WHITE:  # Only allow white moves
+                            selected_square = square
+                            valid_moves = [move.to_square for move in engine.board.legal_moves if move.from_square == square]
+                    else:
+                        # If a piece is already selected, attempt to make a move
+                        if square in valid_moves:
+                            move = chess.Move(from_square=selected_square, to_square=square)
+                            if engine.make_move(move.uci()):
+                                if engine.is_game_over():
+                                    game_over = True
+                                player_turn = False  # Switch to bot's turn
+                            selected_square = None  # Deselect after making a move
+                            valid_moves = []
+                        elif piece and piece.color == chess.WHITE:  # Select a different piece
+                            selected_square = square
+                            valid_moves = [move.to_square for move in engine.board.legal_moves if move.from_square == square]
+                    hover_start_time = None
+            else:
+                hovered_square = square
+                hover_start_time = pygame.time.get_ticks()
         else:
             # Bot's turn
             move = engine.get_best_move()  # Get the best move from Stockfish
@@ -176,8 +186,7 @@ def main():
             )
 
         # Always draw the dot
-        if player_position:
-            pygame.draw.circle(screen, (255, 0, 0), (smoothed_x, smoothed_y), 15)
+        pygame.draw.circle(screen, (255, 0, 0), (smoothed_x, smoothed_y), 15)
 
         # Draw the evaluation bar
         evaluation = evaluate_board(engine)
