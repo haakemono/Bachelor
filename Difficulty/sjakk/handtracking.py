@@ -36,15 +36,12 @@ class HandTracker:
         results = self.hands.process(rgb_frame)
 
         if results.multi_hand_landmarks:
-            print("Hand detected!")  # Debugging line
             self.hand_landmarks = results.multi_hand_landmarks[0]
             
             # Track the index finger tip (Landmark 8)
             index_finger_tip = self.hand_landmarks.landmark[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
             player_x = int((1 - index_finger_tip.x) * self.width)  # Invert x-axis for opposite movement
             player_y = int(index_finger_tip.y * self.width)  # Scale y-coordinate similarly
-            print(f"Index Finger Tip x position: {index_finger_tip.x}, Scaled x: {player_x}")
-            print(f"Index Finger Tip y position: {index_finger_tip.y}, Scaled y: {player_y}")
             
             # Append the new position to the history
             self.position_history.append((player_x, player_y))

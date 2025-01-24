@@ -37,9 +37,10 @@ class ChessEngine:
             move = chess.Move.from_uci(move_uci)
             if move in self.board.legal_moves:
                 # Check for pawn promotion
-                if self.board.piece_at(move.from_square).piece_type == chess.PAWN:
-                    if chess.square_rank(move.to_square) in [0, 7]:  # Promotion rank
-                        move.promotion = chess.QUEEN  # Default to queen promotion
+                if self.board.piece_at(move.from_square).piece_type == chess.PAWN and chess.square_rank(move.to_square) in [0, 7]:
+                    if not move.promotion:
+                        # Automatically add queen promotion if not specified
+                        move = chess.Move(move.from_square, move.to_square, promotion=chess.QUEEN)
                 self.board.push(move)
                 self.turn = "black" if self.turn == "white" else "white"
                 return True

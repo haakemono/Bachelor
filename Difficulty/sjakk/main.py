@@ -107,13 +107,22 @@ def main():
                             valid_moves = [move.to_square for move in engine.board.legal_moves if move.from_square == square]
                     else:
                         # Make the move
-                        if square in valid_moves:
-                            move = chess.Move(from_square=selected_square, to_square=square)
-                            if engine.make_move(move.uci()):
-                                if engine.is_game_over():
-                                    game_over = True
-                        selected_square = None
-                        valid_moves = []
+                            if square in valid_moves:
+                                piece = engine.board.piece_at(selected_square)
+                                if piece and piece.piece_type == chess.PAWN and chess.square_rank(square) in [0, 7]:
+                                    # Prompt the user for promotion choice
+                                    promotion_choice = input("Promote to (q/r/b/n): ").lower()
+                                    promotion_piece = promotion_choice if promotion_choice in ['q', 'r', 'b', 'n'] else 'q'
+                                    move = chess.Move(from_square=selected_square, to_square=square, promotion={'q': chess.QUEEN, 'r': chess.ROOK, 'b': chess.BISHOP, 'n': chess.KNIGHT}[promotion_piece])
+                                else:
+                                    move = chess.Move(from_square=selected_square, to_square=square)
+
+                                if engine.make_move(move.uci()):
+                                    if engine.is_game_over():
+                                        game_over = True
+                                selected_square = None
+                                valid_moves = []
+
                     hover_start_time = None  # Reset hover timer
             else:
                 hovered_square = square

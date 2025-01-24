@@ -1,5 +1,7 @@
 import pygame
 import chess
+from Constants import ASSETS_PATH, SQUARE_SIZE, SCREEN_SIZE, BAR_WIDTH, HOVER_TIME_THRESHOLD, STOCKFISH_PATH
+
 
 class ChessBoard:
     def __init__(self, engine, assets_path, square_size):

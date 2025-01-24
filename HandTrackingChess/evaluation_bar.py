@@ -1,4 +1,5 @@
 import pygame
+from Constants import ASSETS_PATH, SQUARE_SIZE, SCREEN_SIZE, BAR_WIDTH, HOVER_TIME_THRESHOLD, STOCKFISH_PATH
 
 class EvaluationBar:
     def __init__(self, screen, x_position, height, width=20):

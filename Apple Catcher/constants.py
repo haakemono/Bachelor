@@ -3,7 +3,7 @@ import pygame
 
 # Game dimensions
 WIDTH = 800
-HEIGHT = 800
+HEIGHT = 700
 
 # Player settings
 PLAYER_WIDTH = 100
