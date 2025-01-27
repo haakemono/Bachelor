@@ -1,7 +1,7 @@
 import pygame
 import random
 from hand_tracking import HandTracker
-from logic import draw, reset_game
+from render_logic import draw, reset_game
 from constants import WIDTH, HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT, APPLE_RADIUS, BOMB_RADIUS, NEW_APPLE_INTERVAL, NEW_BOMB_INTERVAL, BOMB_FALL_SPEED, APPLE_FALL_SPEED
 
 def game_loop():
