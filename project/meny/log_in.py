@@ -1,31 +1,21 @@
 import sys
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Database')))
 
-# Get the project root directory (one level up from 'meny/')
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+import database
 
-# Add the project root to the system path so Python finds 'Database'
-if PROJECT_ROOT not in sys.path:
-    sys.path.append(PROJECT_ROOT)
-
-from Database.database import login_user
-
-def main():
-    print("🔒 Log in to your account")
-    username = input("Enter username: ").strip()
-    password = input("Enter password: ").strip()
+def log_in():
+    """Handles user login."""
+    print("\n--- Log In ---")
+    username = input("Enter your username: ").strip()
+    password = input("Enter your password: ").strip()
     
-    if login_user(username, password):
-        print("✅ Login successful!")
-        import os, sys
-        os.execv(sys.executable, ["python", "Meny/menu.py"])  # Redirect to menu
+    if database.login_user(username, password):
+        print("Login successful!")
+        with open("user_info.txt", "w") as file:
+            file.write(username)
     else:
-        print("❌ Incorrect username or password.")
-        choice = input("Try again? (Y/N): ").strip().lower()
-        if choice == "y":
-            main()
-        else:
-            print("Returning to menu.")
+        print("Invalid username or password. Try again.")
 
 if __name__ == "__main__":
-    main()
+    log_in()

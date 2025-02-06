@@ -1,19 +1,39 @@
-from Database.database import change_password
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Database')))
 
-def main():
-    print("🔑 Change your password")
-    username = input("Enter your username: ").strip()
-    old_password = input("Enter your current password: ").strip()
-    new_password = input("Enter your new password: ").strip()
+import database
+
+def change_password():
+    """Handles password change for a logged-in user."""
+    print("\n--- Change Password ---")
     
-    if change_password(username, old_password, new_password):
-        print("✅ Password updated successfully!")
-    else:
-        print("❌ Incorrect current password or user does not exist.")
-
-    input("Press Enter to return to login.")
-    import os, sys
-    os.execv(sys.executable, ["python", "Meny/log_in.py"])
+    try:
+        with open("user_info.txt", "r") as file:
+            username = file.read().strip()
+    except FileNotFoundError:
+        print("No user is logged in. Please log in first.")
+        return
+    
+    old_password = input("Enter your current password: ").strip()
+    if not database.login_user(username, old_password):
+        print("Incorrect current password. Try again.")
+        return
+    
+    new_password = input("Enter your new password: ").strip()
+    confirm_password = input("Confirm your new password: ").strip()
+    
+    if new_password != confirm_password:
+        print("Passwords do not match. Try again.")
+        return
+    
+    conn, cursor = database.connect_db()
+    hashed_new_password = database.hash_password(new_password)
+    cursor.execute("UPDATE users SET password = ? WHERE username = ?", (hashed_new_password, username))
+    conn.commit()
+    conn.close()
+    
+    print("Password changed successfully!")
 
 if __name__ == "__main__":
-    main()
+    change_password()
