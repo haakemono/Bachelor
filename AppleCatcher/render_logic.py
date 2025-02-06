@@ -24,12 +24,19 @@ def draw(player, apples, bombs, score, lives, game_over):
 
     if game_over:
         game_over_text = FONT.render("GAME OVER", True, "red")
-        WIN.blit(game_over_text, (WIDTH // 2 - 100, HEIGHT // 2 - 20))
+        WIN.blit(game_over_text, (WIDTH // 2 - 100, HEIGHT // 2 - 50))
 
-        reset_button = pygame.Rect(WIDTH // 2 - 75, HEIGHT // 2, 150, 50)
-        pygame.draw.rect(WIN, "green", reset_button)
+        reset_button_width = 220
+        reset_button_height = 60
+        reset_button_x = WIDTH // 2 - reset_button_width // 2
+        reset_button_y = HEIGHT // 2 + 20
+    
+        pygame.draw.rect(WIN, "black", (reset_button_x, reset_button_y, reset_button_width, reset_button_height))
+
         reset_text = FONT.render("Press R to Reset", True, "white")
-        WIN.blit(reset_text, (WIDTH // 2 - 45, HEIGHT // 2 + 10))
+        text_rect = reset_text.get_rect(center=(reset_button_x + reset_button_width // 2, reset_button_y + reset_button_height // 2))
+        WIN.blit(reset_text, text_rect.topleft)
+
 
     # Display score and lives
     score_text = FONT.render(f"Score: {score}", True, "black")
@@ -46,7 +53,7 @@ def reset_game():
         "apples": [],
         "bombs": [],
         "score": 0,
-        "lives": 3,
+        "lives": 1,
         "frame_count": 0,
         "game_over": False,
     }
