@@ -1,10 +1,13 @@
+#game.py
+
 import pygame
 import os
 import sys
 import random
 from hand_tracking import HandTracker
-from render_logic import draw, reset_game
+from render_logic import draw, reset_game, start_menu, pause_game
 from constants import WIDTH, HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT, APPLE_RADIUS, BOMB_RADIUS, NEW_APPLE_INTERVAL, NEW_BOMB_INTERVAL, BOMB_FALL_SPEED, APPLE_FALL_SPEED
+
 
 def game_loop():
     pygame.init()
@@ -12,7 +15,7 @@ def game_loop():
     pygame.display.set_caption("Apples Catching")
     clock = pygame.time.Clock()
 
-    # Initialize game state
+    start_menu()
     game_state = reset_game()
     hand_tracker = HandTracker(WIDTH)
 
@@ -30,6 +33,8 @@ def game_loop():
                 elif event.key == pygame.K_ESCAPE or event.key == pygame.K_q:  # ESC or Q to exit
                     print("🔙 Returning to menu...")
                     run = False  # Stop the game loop
+                elif event.key == pygame.K_p:
+                    pause_game()
 
         if game_state["game_over"]:
             draw(game_state["player"], game_state["apples"], game_state["bombs"], game_state["score"], game_state["lives"], game_state["game_over"])
