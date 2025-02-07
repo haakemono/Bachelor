@@ -1,5 +1,5 @@
 import pygame
-from constants import WIDTH, HEIGHT, NOTE_SPEED, HIT_ZONE_X, HIT_TOLERANCE
+from constants import MUSIC_FILE, WIDTH, HEIGHT, NOTE_SPEED, HIT_ZONE_X, HIT_TOLERANCE
 from game_logic import generate_notes, check_hit
 from render import draw_pause_menu, draw_screen, draw_game_over, draw_start_menu
 
@@ -7,6 +7,14 @@ from render import draw_pause_menu, draw_screen, draw_game_over, draw_start_menu
 pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Gesture Hero")
+
+
+def start_music ():
+    "plays song from beginning"
+    pygame.mixer.init()
+    pygame.mixer.music.load(MUSIC_FILE)
+    pygame.mixer.music.play()
+
 
 def start_menu():
     "displays the start menu and waits for the player to start"
@@ -22,6 +30,7 @@ def start_menu():
 
 def pause_menu():
     "displas the pause menu and waits for input"
+    pygame.mixer.music.pause()
     while True:
         draw_pause_menu(WIN)
         for event in pygame.event.get():
@@ -30,6 +39,7 @@ def pause_menu():
                 return "exit"
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
+                    pygame.mixer.music.unpause()
                     return "resume"  
                 if event.key == pygame.K_m:
                     return "menu" 
@@ -42,7 +52,13 @@ def game_loop():
     score = 0
     running = True
 
+    start_music()
+    pygame.time.wait(100)
+    song_start_time = pygame.mixer.music.get_pos()
+    
+
     while running:
+        current_time = pygame.mixer.music.get_pos()
         draw_screen(WIN, notes, score, HIT_ZONE_X)
 
         for event in pygame.event.get():
@@ -64,7 +80,7 @@ def game_loop():
 
         # notes coming horizontally
         for note in notes:
-            if not note["hit"]:
+            if not note["hit"] and note["time"] <= current_time:
                 note["x"] -= NOTE_SPEED  # move left
 
             #mark notes as missed
@@ -81,6 +97,8 @@ def game_loop():
 
 def game_over_loop(score):
     "displays game over screen and waits for restart button to be pressed"
+
+    pygame.mixer.music.stop()
     while True:
 
         draw_game_over(WIN, score)

@@ -1,20 +1,25 @@
+import os
 import random
 from constants import KEYS, TOTAL_NOTES, HEIGHT, WIDTH
 
-def generate_notes():
-    notes = []
-    spacing = 150  
 
-    for i in range(TOTAL_NOTES):
-        key = random.choice(KEYS)  
-        notes.append({
-            "x": WIDTH + i * spacing,  # start off-screen and come in one at a time
-            "y": HEIGHT // 2,   # centered vertically
-            "key": key,
-            "hit": False
-        })
+def load_beatmap(filename):
+    """Loads beatmap from a file and returns a list of notes with their timestamps."""
+    filepath = os.path.join(os.path.dirname(__file__), filename)  # ✅ Ensure correct path
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Error: {filepath} not found!")  # ✅ Error message if missing
     
+    notes = []
+    with open(filepath, "r") as f:
+        for line in f:
+            timestamp, key = line.strip().split()
+            notes.append({"time": int(timestamp), "key": KEYS[key], "x": WIDTH, "y": HEIGHT // 2, "hit": False})
     return notes
+    
+def generate_notes():
+    "loads notes based on beatmap"
+    return load_beatmap("beatmap.txt")
+    
 
 def check_hit(event_key, notes, hit_zone_x, hit_tolerance):
     "checks if a note is hit correctly."
