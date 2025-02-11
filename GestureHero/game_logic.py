@@ -16,9 +16,9 @@ def load_beatmap(filename):
             notes.append({"time": int(timestamp), "key": KEYS[key], "x": WIDTH, "y": HEIGHT // 2, "hit": False})
     return notes
     
-def generate_notes():
+def generate_notes(beatmap_file):
     "loads notes based on beatmap"
-    return load_beatmap("beatmap.txt")
+    return load_beatmap(beatmap_file)
     
 
 def check_hit(event_key, notes, hit_zone_x, hit_tolerance):

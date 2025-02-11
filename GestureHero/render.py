@@ -47,6 +47,21 @@ def draw_screen(win, notes, score, hit_zone_x):
     win.blit(pause_text, (WIDTH - 290, 10))  
 
     pygame.display.flip()
+def draw_song_menu(win, songs, selected_index):
+    "Draws the song selection menu."
+    win.fill(BLACK)
+    title_text = FONT.render("Select a Song", True, WHITE)
+    win.blit(title_text, (WIDTH // 2 - 100, 50))
+
+    for i, song in enumerate(songs):
+        color = GREEN if i == selected_index else WHITE
+        song_text = FONT.render(song["title"], True, color)
+        win.blit(song_text, (WIDTH // 2 - 80, 150 + i * 50))
+
+    instruction_text = FONT.render("UP/DOWN to Select, ENTER to Play", True, GRAY)
+    win.blit(instruction_text, (WIDTH // 2 - 200, HEIGHT - 100))
+
+    pygame.display.flip()
 
 def draw_game_over(win, score):
     "displays the game over screen WITH restart button"

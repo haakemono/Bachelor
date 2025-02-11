@@ -1,0 +1,19 @@
+{
+    "songs": [
+        {
+            "title": "Level 1",
+            "file": "music/Level2.mp3",
+            "beatmap": "beatmaps/level1.txt"
+        },
+        {
+            "title": "Level 2",
+            "file": "music/Level2.mp3",
+            "beatmap": "beatmaps/Level2.txt"
+        },
+        {
+            "title": "Song 3",
+            "file": "music/song3.mp3",
+            "beatmap": "beatmaps/song3.txt"
+        }
+    ]
+}
