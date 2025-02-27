@@ -1,9 +1,19 @@
 import chess
+import chess.engine
+import os
 
 class ChessEngine:
-    def __init__(self):
+    def __init__(self, stockfish_path):
         self.board = chess.Board()
         self.turn = "white"
+
+        # Ensure the Stockfish executable exists
+        if not os.path.isfile(stockfish_path):
+            print(f"Error: Stockfish executable not found at {stockfish_path}")
+            raise FileNotFoundError(f"Stockfish not found at {stockfish_path}")
+        
+        # Initialize Stockfish engine
+        self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
 
     def display_board(self):
         """
@@ -51,8 +61,6 @@ class ChessEngine:
             print(f"Invalid move format: {move_uci}")
             return False
 
-
-
     def is_game_over(self):
         """
         Check if the game is over.
@@ -84,3 +92,32 @@ class ChessEngine:
             chess.Piece or None: The piece on the given square, or None if empty.
         """
         return self.board.piece_at(square)
+
+    def ai_move(self, difficulty="easy"):
+        """
+        Let Stockfish make a move after thinking for a specified duration or depth.
+        
+        Args:
+            difficulty (str): The difficulty level of the AI (easy, medium, or hard).
+        
+        Returns:
+            chess.Move: The AI's best move.
+        """
+        # Define depths based on difficulty
+        if difficulty == "easy":
+            depth = 1  # Easy = shallow search
+        elif difficulty == "medium":
+            depth = 3  # Medium = deeper search
+        elif difficulty == "hard":
+            depth = 5  # Hard = very deep search
+        else:
+            depth = 3  # Default to medium if an unknown difficulty is provided
+
+        # Use Stockfish to get the best move for the current board
+        result = self.engine.play(self.board, chess.engine.Limit(depth=depth))
+        self.board.push(result.move)  # Execute the move on the board
+        return result.move
+
+    def close(self):
+        """Close the engine when done."""
+        self.engine.quit()
