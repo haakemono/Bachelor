@@ -3,63 +3,66 @@ import numpy as np
 import tensorflow as tf
 import joblib
 import mediapipe as mp
+import pandas as pd
 
-class GestureRecognizer:
-    def __init__(self, model_path="gesture_recognition_model.h5", encoder_path="label_encoder.pkl", scaler_path="scaler.pkl"):
-        # Load the trained model, label encoder, and scaler
-        self.model = tf.keras.models.load_model(model_path)
-        self.label_encoder = joblib.load(encoder_path)
-        self.scaler = joblib.load(scaler_path)
+#  Load trained model and label encoder
+model = tf.keras.models.load_model("gesture_recognition_model.h5")
+label_encoder = joblib.load("label_encoder.pkl")
 
-        # Initialize MediaPipe Hand Tracking
-        self.mp_hands = mp.solutions.hands
-        self.mp_drawing = mp.solutions.drawing_utils
-        self.hands = self.mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7)
+# Initialize MediaPipe Hand Tracking
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+hands = mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7)
 
-        # Start video capture
-        self.cap = cv2.VideoCapture(0)
-        self.last_prediction = None  # Store last recognized gesture
+#  Start video capture
+cap = cv2.VideoCapture(0)
+last_prediction = None  # Store last recognized gesture to prevent redundant output
 
-    def get_gesture(self):
-        """
-        Captures a frame, processes hand landmarks, and predicts a gesture.
-        Returns:
-            str: Predicted gesture label or None if no valid hand detected.
-        """
-        ret, frame = self.cap.read()
-        if not ret:
-            return None
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
 
-        # Flip the frame for natural hand tracking
-        frame = cv2.flip(frame, 1)
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = self.hands.process(rgb_frame)
+    # Flip the frame for natural hand tracking
+    frame = cv2.flip(frame, 1)
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = hands.process(rgb_frame)
 
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                # Extract landmark coordinates
-                landmarks = []
-                for lm in hand_landmarks.landmark:
-                    landmarks.extend([lm.x, lm.y, lm.z])  # Flatten x, y, z coordinates
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+            # Draw hand landmarks
+            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-                # Convert to NumPy array and reshape for model prediction
-                landmarks = np.array(landmarks, dtype=np.float32).reshape(1, -1)
+            # Extract landmark coordinates
+            landmarks = []
+            for lm in hand_landmarks.landmark:
+                landmarks.extend([lm.x, lm.y, lm.z])  # Flatten x, y, z coordinates
 
-                # 🔹 Apply the same scaling as during training
-                if landmarks.shape[1] == self.model.input_shape[1]:  # Input dimension check
-                    landmarks_scaled = self.scaler.transform(landmarks)  # Normalize input
+            # Convert to a NumPy array and reshape for model prediction
+            landmarks = np.array(landmarks, dtype=np.float32).reshape(1, -1)
 
-                    prediction = self.model.predict(landmarks_scaled, verbose=0)  # Suppress printing
-                    predicted_class = np.argmax(prediction)  # Get highest probability class
-                    gesture_name = self.label_encoder.inverse_transform([predicted_class])[0]
+            # 🔹 Ensure consistency with model input format
+            if landmarks.shape[1] == model.input_shape[1]:  # Input dimension check
+                prediction = model.predict(landmarks, verbose=0)  #  Suppress printing
+                predicted_class = np.argmax(prediction)  # Get highest probability class
+                gesture_name = label_encoder.inverse_transform([predicted_class])[0]
 
-                    # Avoid redundant predictions
-                    if gesture_name != self.last_prediction:
-                        self.last_prediction = gesture_name  # Update last recognized gesture
-                        return gesture_name  # Return the detected gesture
-        return None
+                #  Print only when the gesture changes
+                if gesture_name != last_prediction:
+                    print(f" Detected Gesture: {gesture_name}")
+                    last_prediction = gesture_name  # Update last recognized gesture
 
-    def release(self):
-        """Releases the camera resources."""
-        self.cap.release()
-        cv2.destroyAllWindows()
+                # Display result on screen
+                cv2.putText(frame, f'Gesture: {gesture_name}', (50, 50),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+    # Show the frame
+    cv2.imshow("Gesture Recognition", frame)
+
+    # Press 'q' to exit
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Cleanup
+cap.release()
+cv2.destroyAllWindows()

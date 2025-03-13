@@ -1,6 +1,6 @@
 import pygame
 import random
-from hand_tracking import HandTracker
+from hand_tracking import BallTracker
 from render_logic import draw, reset_game, start_menu, pause_game
 from constants import WIDTH, HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT, APPLE_RADIUS, BOMB_RADIUS
 
@@ -53,7 +53,7 @@ def game_loop():
     game_state = reset_game()
     game_state["start_time"] = pygame.time.get_ticks()  # Track start time
     print(f"Game Started! Initial Start Time: {game_state['start_time']}")  # Debugging print
-    hand_tracker = HandTracker(WIDTH)
+    hand_tracker = BallTracker(WIDTH)
     run = True
 
     while run:
