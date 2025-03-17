@@ -26,8 +26,12 @@ class GestureRecognizer:
         self.mp_drawing = mp.solutions.drawing_utils
         self.hands = self.mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7)
 
-        # Start video capture
+       # Start video capture
         self.cap = cv2.VideoCapture(0)
+        if not self.cap.isOpened():
+            print("Default camera not found. Trying alternative camera index (1)...")
+            self.cap = cv2.VideoCapture(1)
+
         self.last_prediction = None
         self.gesture_start_time = None
 

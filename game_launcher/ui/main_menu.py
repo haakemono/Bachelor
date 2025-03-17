@@ -1,6 +1,6 @@
 import pygame
 import subprocess
-
+import sys
 WIDTH, HEIGHT = 640, 480
 
 def run_main_menu():
@@ -28,11 +28,11 @@ def run_main_menu():
                 for name, rect in buttons.items():
                     if rect.collidepoint(event.pos):
                         if name == "Apple Catcher":
-                            subprocess.Popen(["python", "games/AppleCatcher/main.py"])
+                            subprocess.Popen([sys.executable, "games/AppleCatcher/main.py"])
                         elif name == "Gesture Hero":
-                            subprocess.Popen(["python", "games/GestureHero/main.py"])
+                            subprocess.Popen([sys.executable, "games/GestureHero/main.py"])
                         elif name == "Chess Game":
-                            subprocess.Popen(["python", "games/ny_sjakk/main.py"])
+                            subprocess.Popen([sys.executable, "games/ny_sjakk/main.py"])
                         elif name == "Exit":
                             pygame.quit()
                             exit()
