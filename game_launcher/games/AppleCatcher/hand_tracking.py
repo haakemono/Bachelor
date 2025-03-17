@@ -116,7 +116,7 @@ class BallTracker:
         return None
 
     def initialize_tracker(self, frame, bbox):
-        self.tracker = cv2.TrackerKCF_create()
+        self.tracker = cv2.legacy.TrackerKCF_create()
         self.tracker.init(frame, bbox)
         self.tracking = True
         self.bbox = bbox

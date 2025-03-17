@@ -84,7 +84,8 @@ def main():
     screen = pygame.display.set_mode((SCREEN_SIZE + BAR_WIDTH, SCREEN_SIZE + 30))
     pygame.display.set_caption("Chess")
 
-    stockfish_path = r"C:\Users\haako\OneDrive\Documents\Skole\stockfish-windows-x86-64-avx2\stockfish\stockfish-windows-x86-64-avx2.exe"
+    stockfish_path = "/opt/homebrew/bin/stockfish" # Apple Silicon Macs
+
     engine = ChessEngine(stockfish_path)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)
     evaluation_bar = EvaluationBar(screen, SCREEN_SIZE, SCREEN_SIZE, BAR_WIDTH)
