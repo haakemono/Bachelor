@@ -84,7 +84,21 @@ def main():
     screen = pygame.display.set_mode((SCREEN_SIZE + BAR_WIDTH, SCREEN_SIZE + 30))
     pygame.display.set_caption("Chess")
 
-    stockfish_path = "/opt/homebrew/bin/stockfish" # Apple Silicon Macs
+
+    try:
+        # Try Windows path first
+        stockfish_path = r"C:\Users\haako\OneDrive\Documents\Skole\stockfish-windows-x86-64-avx2\stockfish\stockfish-windows-x86-64-avx2.exe"
+        if not os.path.exists(stockfish_path):
+            raise FileNotFoundError("Windows Stockfish not found")
+
+    except FileNotFoundError:
+        # Fallback to macOS Homebrew default path
+        stockfish_path = "/opt/homebrew/bin/stockfish"
+        if not os.path.exists(stockfish_path):
+            raise FileNotFoundError("Stockfish engine not found on this system.\n"
+                                    "➡ On Mac, try: brew install stockfish\n"
+                                    "➡ On Windows, ensure the .exe is in the expected folder.")
+
 
     engine = ChessEngine(stockfish_path)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)
