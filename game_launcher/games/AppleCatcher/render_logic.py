@@ -1,10 +1,14 @@
 import pygame
+import os
 from constants import PLAYER_HEIGHT, PLAYER_WIDTH, WIDTH, HEIGHT, FONT, APPLE_RADIUS, BOMB_RADIUS
 
-background_image = pygame.transform.scale(pygame.image.load("img/background.png"), (WIDTH, HEIGHT))
-player_image = pygame.transform.scale(pygame.image.load("img/player.png"), (PLAYER_WIDTH, PLAYER_HEIGHT))
-apple_image = pygame.transform.scale(pygame.image.load("img/apple.png"), (APPLE_RADIUS * 2, APPLE_RADIUS * 2))
-bomb_image = pygame.transform.scale(pygame.image.load("img/bomb.png"), (BOMB_RADIUS * 2, BOMB_RADIUS * 2))
+BASE_PATH = os.path.dirname(__file__)
+background_image = pygame.transform.scale(pygame.image.load(os.path.join(BASE_PATH, "img", "background.png")), (WIDTH, HEIGHT))
+player_image = pygame.transform.scale(pygame.image.load(os.path.join(BASE_PATH, "img", "player.png")), (PLAYER_WIDTH, PLAYER_HEIGHT))
+apple_image = pygame.transform.scale(pygame.image.load(os.path.join(BASE_PATH, "img", "apple.png")), (APPLE_RADIUS * 2, APPLE_RADIUS * 2))
+bomb_image = pygame.transform.scale(pygame.image.load(os.path.join(BASE_PATH, "img", "bomb.png")), (BOMB_RADIUS * 2, BOMB_RADIUS * 2))
+
+# Rest of the code remains unchanged...
 
 def draw_start_menu(selected_index):
     WIN = pygame.display.get_surface()

@@ -5,11 +5,17 @@ import joblib
 import mediapipe as mp
 import time
 import warnings
+import os
 
 warnings.simplefilter(action='ignore', category=UserWarning)  # Suppress sklearn warning
-
 class GestureRecognizer:
     def __init__(self, model_path="gesture_recognition_model.h5", encoder_path="label_encoder.pkl", scaler_path="scaler.pkl"):
+        # Resolve paths relative to this file's location
+        base_path = os.path.dirname(__file__)
+        model_path = os.path.join(base_path, model_path)
+        encoder_path = os.path.join(base_path, encoder_path)
+        scaler_path = os.path.join(base_path, scaler_path)
+
         # Load trained model, label encoder, and scaler
         self.model = tf.keras.models.load_model(model_path)
         self.label_encoder = joblib.load(encoder_path)
@@ -32,7 +38,6 @@ class GestureRecognizer:
         self.gesture_to_rank = {   # Rank (Row) Mapping
             "Y": 0, "X": 1, "O": 2, "I": 3, "J": 4, "K": 5, "L": 6, "P": 7
         }
-
     def get_move_gesture(self):
         """
         Captures a gesture for selecting a chess piece's file (column) or rank (row).

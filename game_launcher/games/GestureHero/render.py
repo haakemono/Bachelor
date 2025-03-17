@@ -1,22 +1,24 @@
 import pygame
 from constants import FONT, GRAY, WIDTH, HEIGHT, WHITE, BLACK, GREEN, RED, BLUE, PURPLE
+import os
 
+BASE_PATH = os.path.dirname(__file__)
+FONT = pygame.font.Font(os.path.join(BASE_PATH, "assets", "futuristic.otf"), 36)
 
-FONT = pygame.font.Font("assets/futuristic.otf", 36)
 
 # game backgrounds
-background = pygame.image.load("assets/background.png")  
+background = pygame.image.load(os.path.join(BASE_PATH, "assets", "background.png"))
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))  
 background_x = 0  # Background scrolling position
 
-main_menu_background = pygame.image.load("assets/mainmenu.png")  
+main_menu_background = pygame.image.load(os.path.join(BASE_PATH, "assets", "mainmenu.png"))
 main_menu_background = pygame.transform.scale(main_menu_background, (WIDTH, HEIGHT))
 
-start_texture = pygame.image.load("assets/startbutton.png")
+start_texture = pygame.image.load(os.path.join(BASE_PATH, "assets", "startbutton.png"))
 start_texture = pygame.transform.scale(start_texture, (200, 200))  # Adjust size if needed
 
 # load selection menu
-level_selection_bg = pygame.image.load("assets/levelselection.png")
+level_selection_bg = pygame.image.load(os.path.join(BASE_PATH, "assets", "levelselection.png"))
 level_selection_bg = pygame.transform.scale(level_selection_bg, (WIDTH, HEIGHT))
 
 last_key_press_time = None

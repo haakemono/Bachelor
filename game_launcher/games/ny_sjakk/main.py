@@ -6,8 +6,11 @@ from evaluation_bar import EvaluationBar
 from gesture_recognition import GestureRecognizer
 import time
 
-# Constants
-ASSETS_PATH = "assets"
+import os
+
+BASE_PATH = os.path.dirname(__file__)
+ASSETS_PATH = os.path.join(BASE_PATH, "assets")
+
 SQUARE_SIZE = 80
 SCREEN_SIZE = SQUARE_SIZE * 8
 BAR_WIDTH = 20

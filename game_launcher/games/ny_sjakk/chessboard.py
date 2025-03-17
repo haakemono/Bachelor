@@ -10,20 +10,21 @@ class ChessBoard:
         self.font = pygame.font.Font(None, 28)  # Adjusted font size for better visibility
 
     def _load_piece_images(self):
-        # Load images for all pieces (e.g., 'wk.png' for white king)
+        import os
         pieces = ["k", "q", "r", "b", "n", "p"]
         colors = ["w", "b"]
         piece_images = {}
         for color in colors:
             for piece in pieces:
                 key = f"{color}{piece}"
-                path = f"{self.assets_path}/{key}.png"
+                path = os.path.join(self.assets_path, f"{key}.png")
                 try:
                     piece_images[key] = pygame.image.load(path)
                     piece_images[key] = pygame.transform.scale(piece_images[key], (self.square_size, self.square_size))
                 except pygame.error as e:
                     print(f"Error loading image for {key}: {e}")
         return piece_images
+
 
     def draw(self, screen):
         board_size = self.square_size * 8
