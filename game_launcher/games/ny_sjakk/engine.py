@@ -7,114 +7,43 @@ class ChessEngine:
         self.board = chess.Board()
         self.turn = "white"
 
-        # Ensure the Stockfish executable exists
         if not os.path.isfile(stockfish_path):
-            print(f"Error: Stockfish executable not found at {stockfish_path}")
             raise FileNotFoundError(f"Stockfish not found at {stockfish_path}")
-        
-        # Initialize Stockfish engine
+
         self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
 
-    def display_board(self):
-        """
-        Print the current board state to the console.
-        """
-        print(self.board)
-
     def get_valid_moves(self, square):
-        """
-        Get a list of all valid moves for a specific square.
-
-        Args:
-            square (int): The square index (0-63) to get valid moves for.
-
-        Returns:
-            list: A list of target squares (int) that the piece on the given square can move to.
-        """
         return [move.to_square for move in self.board.legal_moves if move.from_square == square]
 
     def make_move(self, move_uci):
-        """
-        Execute a move if it is valid, handling pawn promotion.
-
-        Args:
-            move_uci (str): The move in UCI format (e.g., 'e7e8q').
-
-        Returns:
-            bool: True if the move was successful, False otherwise.
-        """
         try:
             move = chess.Move.from_uci(move_uci)
             if move in self.board.legal_moves:
-                # Check for pawn promotion
                 if self.board.piece_at(move.from_square).piece_type == chess.PAWN and chess.square_rank(move.to_square) in [0, 7]:
                     if not move.promotion:
-                        # Automatically add queen promotion if not specified
                         move = chess.Move(move.from_square, move.to_square, promotion=chess.QUEEN)
                 self.board.push(move)
                 self.turn = "black" if self.turn == "white" else "white"
                 return True
-            else:
-                print(f"Illegal move: {move_uci}")
-                return False
+            return False
         except ValueError:
-            print(f"Invalid move format: {move_uci}")
             return False
 
     def is_game_over(self):
-        """
-        Check if the game is over.
-
-        Returns:
-            bool: True if the game is over, False otherwise.
-        """
         return self.board.is_game_over()
 
     def get_game_result(self):
-        """
-        Get the result of the game if it is over.
-
-        Returns:
-            str: The result of the game ('1-0', '0-1', '1/2-1/2', or 'Game in progress').
-        """
-        if self.board.is_game_over():
-            return self.board.result()
-        return "Game in progress"
+        return self.board.result() if self.board.is_game_over() else "Game in progress"
 
     def get_piece_at(self, square):
-        """
-        Get the piece at a specific square.
-
-        Args:
-            square (int): The square index (0-63).
-
-        Returns:
-            chess.Piece or None: The piece on the given square, or None if empty.
-        """
         return self.board.piece_at(square)
 
     def ai_move(self, skill_level=5):
-        """
-        Let Stockfish make a move using a skill level from 1 to 10.
-
-        Args:
-            skill_level (int): Skill level from 1 (easy) to 10 (hard).
-
-        Returns:
-            chess.Move: The AI's best move.
-        """
-        # Clamp skill level between 1 and 10
-        skill_level = max(1, min(skill_level, 10))
-
-        # Map skill level to depth: (e.g., 1–10 maps to 1–5 depth range)
-        depth = 1 + (skill_level - 1) // 2  # Levels 1-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
-
-        # Use Stockfish to get best move
-        result = self.engine.play(self.board, chess.engine.Limit(depth=depth))
+        skill_level = max(1, min(10, skill_level))
+        self.engine.configure({"Skill Level": skill_level})
+        result = self.engine.play(self.board, chess.engine.Limit(depth=skill_level))
         self.board.push(result.move)
         return result.move
 
-
     def close(self):
-        """Close the engine when done."""
         self.engine.quit()

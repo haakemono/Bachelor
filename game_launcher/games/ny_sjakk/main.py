@@ -4,7 +4,6 @@ import os
 import time
 from chessboard import ChessBoard
 from engine import ChessEngine
-from evaluation_bar import EvaluationBar
 from gesture_recognition import GestureRecognizer
 
 BASE_PATH = os.path.dirname(__file__)
@@ -152,7 +151,6 @@ def main():
 
     engine = ChessEngine(stockfish_path)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)
-    evaluation_bar = EvaluationBar(screen, SCREEN_SIZE, SCREEN_SIZE, BAR_WIDTH)
     gesture_recognizer = GestureRecognizer()
 
     selecting = "file"
@@ -207,7 +205,6 @@ def main():
             engine.turn = "white"
 
         evaluation = evaluate_board(engine)
-        evaluation_bar.draw(evaluation)
         pygame.display.flip()
         clock.tick(30)
 
