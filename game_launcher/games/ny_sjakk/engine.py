@@ -93,30 +93,27 @@ class ChessEngine:
         """
         return self.board.piece_at(square)
 
-    def ai_move(self, difficulty="easy"):
+    def ai_move(self, skill_level=5):
         """
-        Let Stockfish make a move after thinking for a specified duration or depth.
-        
+        Let Stockfish make a move using a skill level from 1 to 10.
+
         Args:
-            difficulty (str): The difficulty level of the AI (easy, medium, or hard).
-        
+            skill_level (int): Skill level from 1 (easy) to 10 (hard).
+
         Returns:
             chess.Move: The AI's best move.
         """
-        # Define depths based on difficulty
-        if difficulty == "easy":
-            depth = 1  # Easy = shallow search
-        elif difficulty == "medium":
-            depth = 3  # Medium = deeper search
-        elif difficulty == "hard":
-            depth = 5  # Hard = very deep search
-        else:
-            depth = 3  # Default to medium if an unknown difficulty is provided
+        # Clamp skill level between 1 and 10
+        skill_level = max(1, min(skill_level, 10))
 
-        # Use Stockfish to get the best move for the current board
+        # Map skill level to depth: (e.g., 1–10 maps to 1–5 depth range)
+        depth = 1 + (skill_level - 1) // 2  # Levels 1-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
+
+        # Use Stockfish to get best move
         result = self.engine.play(self.board, chess.engine.Limit(depth=depth))
-        self.board.push(result.move)  # Execute the move on the board
+        self.board.push(result.move)
         return result.move
+
 
     def close(self):
         """Close the engine when done."""
