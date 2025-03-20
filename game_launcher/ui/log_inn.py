@@ -3,7 +3,7 @@ import ui.main_menu as main_menu
 
 WIDTH, HEIGHT = 640, 480
 
-USERNAME = "player1"
+USERNAME = "asd"
 PASSWORD = "123"
 
 def run_login_screen():

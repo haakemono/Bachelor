@@ -135,6 +135,33 @@ def handle_gesture_input(gesture, selecting, engine, gesture_recognizer, selecte
                 selecting = "file"
     return selecting, selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank
 
+def show_game_over_screen(result):
+    pygame.init()
+    screen = pygame.display.set_mode((600, 400))
+    pygame.display.set_caption("Game Over")
+    font = pygame.font.SysFont(None, 48)
+    small_font = pygame.font.SysFont(None, 36)
+
+    while True:
+        screen.fill((20, 20, 20))
+        screen.blit(font.render("Game Over", True, (255, 0, 0)), (200, 80))
+        screen.blit(small_font.render(f"Result: {result}", True, (255, 255, 255)), (200, 150))
+        screen.blit(small_font.render("Press R to Restart", True, (180, 180, 180)), (180, 230))
+        screen.blit(small_font.render("Press Q to Quit", True, (180, 180, 180)), (200, 270))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    exit()
+                elif event.key == pygame.K_r:
+                    main()  # Restart the game
+                    return
+
 # -----------------------------------------
 def main():
     skill_level, control_mode = start_menu()
@@ -166,7 +193,10 @@ def main():
 
         for e in events:
             if e.type == pygame.QUIT:
-                pygame.quit(); engine.close(); return
+                pygame.quit()
+                engine.close()
+                gesture_recognizer.print_average_confidences()
+                return
 
         for move in valid_moves:
             pygame.draw.circle(screen, (255, 0, 0), (move[0] * SQUARE_SIZE + SQUARE_SIZE // 2, (7 - move[1]) * SQUARE_SIZE + SQUARE_SIZE // 2), 10)
@@ -191,6 +221,12 @@ def main():
                         selected_piece_square = None
                         valid_moves = []
 
+                if engine.is_game_over():
+                    result = engine.get_game_result()
+                    gesture_recognizer.print_average_confidences()
+                    show_game_over_screen(result)
+                    return
+
             elif input_result[0] == "gesture":
                 selecting, selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank = handle_gesture_input(
                     input_result[1], selecting, engine, gesture_recognizer,
@@ -198,13 +234,26 @@ def main():
                 if selecting == "file":
                     engine.turn = "black"
 
+                if engine.is_game_over():
+                    result = engine.get_game_result()
+                    gesture_recognizer.print_average_confidences()
+                    show_game_over_screen(result)
+                    return
+
         if engine.turn == "black":
             print("AI is thinking...")
             ai_move = engine.ai_move(skill_level=skill_level)
             print(f"AI move: {ai_move}")
             engine.turn = "white"
 
-        evaluation = evaluate_board(engine)
+            if engine.is_game_over():
+                result = engine.get_game_result()
+                gesture_recognizer.print_average_confidences()
+                show_game_over_screen(result)
+                return
+
+
+
         pygame.display.flip()
         clock.tick(30)
 
