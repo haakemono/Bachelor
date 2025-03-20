@@ -12,7 +12,6 @@ SQUARE_SIZE = 80
 SCREEN_SIZE = SQUARE_SIZE * 8
 BAR_WIDTH = 20
 
-# -----------------------------------------
 def evaluate_board(engine):
     piece_values = {
         chess.PAWN: 1,
@@ -30,7 +29,6 @@ def evaluate_board(engine):
             evaluation += value if piece.color else -value
     return evaluation
 
-# -----------------------------------------
 def start_menu():
     pygame.init()
     screen = pygame.display.set_mode((600, 400))
@@ -63,7 +61,6 @@ def start_menu():
                 elif event.key == pygame.K_RETURN:
                     return skill_level, control_modes[control_mode_index]
 
-# -----------------------------------------
 def get_player_input(events, control_mode, gesture_recognizer=None):
     if control_mode == "gesture":
         gesture = gesture_recognizer.get_move_gesture()
@@ -78,7 +75,6 @@ def get_player_input(events, control_mode, gesture_recognizer=None):
                     return ("mouse", file, rank)
     return None
 
-# -----------------------------------------
 def handle_mouse_input(input_result, selecting, engine, selected_piece_square, valid_moves):
     if selecting == "file":
         selected_file, selected_rank = input_result[1], input_result[2]
@@ -93,8 +89,9 @@ def handle_mouse_input(input_result, selecting, engine, selected_piece_square, v
         return "move", (target_file, target_rank), None, None, []
     return selecting, None, None, None, valid_moves
 
-# -----------------------------------------
-def handle_gesture_input(gesture, selecting, engine, gesture_recognizer, selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank):
+def handle_gesture_input(gesture, selecting, engine, gesture_recognizer,
+                         selected_file, selected_rank, selected_piece_square,
+                         valid_moves, target_file, target_rank):
     if selecting == "file":
         if gesture in gesture_recognizer.gesture_to_file:
             selected_file = gesture_recognizer.gesture_to_file[gesture]
@@ -127,12 +124,11 @@ def handle_gesture_input(gesture, selecting, engine, gesture_recognizer, selecte
             end_square = chess.square(target_file, target_rank)
             move = chess.Move(selected_piece_square, end_square)
             if move in engine.board.legal_moves:
-                engine.make_move(move.uci())
-                print(f"Player move: {move.uci()}")
-                return "file", None, None, None, [], None, None  # Reset
+                return "animate", selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank, move
             else:
                 print("Invalid move")
                 selecting = "file"
+
     return selecting, selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank
 
 def show_game_over_screen(result):
@@ -159,22 +155,23 @@ def show_game_over_screen(result):
                     pygame.quit()
                     exit()
                 elif event.key == pygame.K_r:
-                    main()  # Restart the game
+                    main()
                     return
 
-# -----------------------------------------
 def main():
     skill_level, control_mode = start_menu()
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_SIZE + BAR_WIDTH, SCREEN_SIZE + 30))
+    screen = pygame.display.set_mode((SCREEN_SIZE + BAR_WIDTH + 200, SCREEN_SIZE + 30))  # Wider screen for sidebar
     pygame.display.set_caption("Chess")
 
     try:
         stockfish_path = r"C:\\Users\\haako\\OneDrive\\Documents\\Skole\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish-windows-x86-64-avx2.exe"
-        if not os.path.exists(stockfish_path): raise FileNotFoundError()
+        if not os.path.exists(stockfish_path):
+            raise FileNotFoundError()
     except:
         stockfish_path = "/opt/homebrew/bin/stockfish"
-        if not os.path.exists(stockfish_path): raise FileNotFoundError("Install Stockfish first.")
+        if not os.path.exists(stockfish_path):
+            raise FileNotFoundError("Install Stockfish first.")
 
     engine = ChessEngine(stockfish_path)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)
@@ -184,22 +181,44 @@ def main():
     selected_piece_square = None
     selected_file = selected_rank = target_file = target_rank = None
     valid_moves = []
+    move_log = []
     clock = pygame.time.Clock()
+    font = pygame.font.SysFont("Arial", 16)
 
     while True:
         screen.fill((0, 0, 0))
         chessboard.draw(screen)
-        events = pygame.event.get()
 
+        # Draw highlight squares
+        if selected_piece_square is not None:
+            r = 7 - chess.square_rank(selected_piece_square)
+            c = chess.square_file(selected_piece_square)
+            s = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE), pygame.SRCALPHA)
+            s.fill((50, 50, 255, 100))
+            screen.blit(s, (c * SQUARE_SIZE, r * SQUARE_SIZE))
+
+            for move in valid_moves:
+                mf, mr = move
+                pygame.draw.circle(screen, (255, 255, 0), (mf * SQUARE_SIZE + SQUARE_SIZE // 2, (7 - mr) * SQUARE_SIZE + SQUARE_SIZE // 2), 10)
+
+        # Draw move log sidebar
+        pygame.draw.rect(screen, (30, 30, 30), pygame.Rect(SCREEN_SIZE + BAR_WIDTH, 0, 200, SCREEN_SIZE + 30))
+        max_display_lines = (SCREEN_SIZE + 30 - 20) // 20
+        start_index = max(0, len(move_log) - 2 * max_display_lines)
+        for i in range(start_index, len(move_log), 2):
+            move_text = f"{i // 2 + 1}. {move_log[i]}"
+            if i + 1 < len(move_log):
+                move_text += f" {move_log[i + 1]}"
+            text_surface = font.render(move_text, True, (255, 255, 255))
+            screen.blit(text_surface, (SCREEN_SIZE + BAR_WIDTH + 10, 10 + (i - start_index) * 10))
+
+        events = pygame.event.get()
         for e in events:
             if e.type == pygame.QUIT:
                 pygame.quit()
                 engine.close()
                 gesture_recognizer.print_average_confidences()
                 return
-
-        for move in valid_moves:
-            pygame.draw.circle(screen, (255, 0, 0), (move[0] * SQUARE_SIZE + SQUARE_SIZE // 2, (7 - move[1]) * SQUARE_SIZE + SQUARE_SIZE // 2), 10)
 
         input_result = get_player_input(events, control_mode, gesture_recognizer)
 
@@ -215,44 +234,91 @@ def main():
                         end_square = chess.square(target_file, target_rank)
                         move = chess.Move(selected_piece_square, end_square)
                         if move in engine.board.legal_moves:
+                            chessboard.animate_move(screen, selected_piece_square, end_square)
+                            move_log.append(move.uci())
                             engine.make_move(move.uci())
                             engine.turn = "black"
                         selecting = "file"
                         selected_piece_square = None
                         valid_moves = []
 
-                if engine.is_game_over():
-                    result = engine.get_game_result()
-                    gesture_recognizer.print_average_confidences()
-                    show_game_over_screen(result)
-                    return
-
             elif input_result[0] == "gesture":
-                selecting, selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank = handle_gesture_input(
+                result = handle_gesture_input(
                     input_result[1], selecting, engine, gesture_recognizer,
-                    selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank)
-                if selecting == "file":
-                    engine.turn = "black"
+                    selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank
+                )
 
-                if engine.is_game_over():
-                    result = engine.get_game_result()
-                    gesture_recognizer.print_average_confidences()
-                    show_game_over_screen(result)
-                    return
+                if result[0] == "animate":
+                    _, selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank, move = result
+                    piece = engine.get_piece_at(move.from_square)
+                    if piece:
+                        piece_image = chessboard.get_piece_image(piece)
+                        chessboard.animate_move(screen, move.from_square, move.to_square, piece_image)
+                    engine.make_move(move.uci())
+                    move_log.append(move.uci())
+                    engine.turn = "black"
+                    selecting = "file"
+                    selected_piece_square = None
+                    valid_moves = []
+                else:
+                    selecting, selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank = result
+
+        if engine.is_game_over():
+            result = engine.get_game_result()
+
+            screen.fill((0, 0, 0))
+            chessboard.draw(screen)
+
+            font_big = pygame.font.SysFont("Arial", 48)
+            font_small = pygame.font.SysFont("Arial", 28)
+
+            screen.blit(font_big.render("Game Over", True, (255, 0, 0)), (SCREEN_SIZE // 2 - 120, SCREEN_SIZE // 2 - 60))
+            screen.blit(font_small.render(f"Result: {result}", True, (255, 255, 255)), (SCREEN_SIZE // 2 - 80, SCREEN_SIZE // 2))
+
+            if control_mode == "gesture":
+                avg_confidences = gesture_recognizer.get_average_confidences()
+                screen.blit(font_small.render("Gesture Accuracy (%)", True, (255, 255, 0)), (SCREEN_SIZE + BAR_WIDTH + 10, 40))
+
+                y_offset = 70
+                for gesture, avg in avg_confidences.items():
+                    display_text = f"{gesture}: {avg:.1f}%"
+                    screen.blit(font_small.render(display_text, True, (255, 255, 255)), (SCREEN_SIZE + BAR_WIDTH + 10, y_offset))
+                    y_offset += 30
+            else:
+                screen.blit(font_small.render("Move Log", True, (255, 255, 0)), (SCREEN_SIZE + BAR_WIDTH + 10, 40))
+
+                y_offset = 70
+                start_index = max(0, len(move_log) - 2 * 20)  # Show last ~20 lines
+                for i in range(start_index, len(move_log), 2):
+                    move_text = f"{i // 2 + 1}. {move_log[i]}"
+                    if i + 1 < len(move_log):
+                        move_text += f" {move_log[i + 1]}"
+                    text_surface = font_small.render(move_text, True, (255, 255, 255))
+                    screen.blit(text_surface, (SCREEN_SIZE + BAR_WIDTH + 10, y_offset))
+                    y_offset += 30
+
+            screen.blit(font_small.render("Press R to Restart or Q to Quit", True, (180, 180, 180)), (SCREEN_SIZE // 2 - 150, SCREEN_SIZE + 10))
+            pygame.display.flip()
+
+            waiting = True
+            while waiting:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit(); exit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_q:
+                            pygame.quit(); exit()
+                        elif event.key == pygame.K_r:
+                            main()
+                            return
 
         if engine.turn == "black":
             print("AI is thinking...")
             ai_move = engine.ai_move(skill_level=skill_level)
-            print(f"AI move: {ai_move}")
+            chessboard.animate_move(screen, ai_move.from_square, ai_move.to_square)
+            move_log.append(ai_move.uci())
+            engine.board.push(ai_move)
             engine.turn = "white"
-
-            if engine.is_game_over():
-                result = engine.get_game_result()
-                gesture_recognizer.print_average_confidences()
-                show_game_over_screen(result)
-                return
-
-
 
         pygame.display.flip()
         clock.tick(30)

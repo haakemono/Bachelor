@@ -34,8 +34,30 @@ class GestureRecognizer:
         self.gesture_start_time = None
 
         # Gesture mappings
-        self.gesture_to_file = {k: i for i, k in enumerate("ABCDEFGH")}
-        self.gesture_to_rank = {k: i for i, k in enumerate("YXOIJKLP")}  # Adjust if needed
+        # Manual mapping for gesture-to-file (columns a–h)
+        self.gesture_to_file = {
+            'A': 0,  # a
+            'B': 1,  # b
+            'C': 2,  # c
+            'D': 3,  # d
+            'E': 4,  # e
+            'F': 5,  # f
+            'G': 6,  # g
+            'H': 7   # h
+        }
+
+        # Manual mapping for gesture-to-rank (rows 1–8 → 0–7)
+        self.gesture_to_rank = {
+            'Y': 0,  # rank 1 (bottom row)
+            'X': 1,  # rank 2
+            'O': 2,  # rank 3
+            'I': 3,  # rank 4
+            'J': 4,  # rank 5
+            'K': 5,  # rank 6
+            'L': 6,  # rank 7
+            'P': 7   # rank 8 (top row)
+        }
+
 
         # Confidence tracking
         self.gesture_confidences = {label: {"total_confidence": 0.0, "count": 0} for label in self.label_encoder.classes_}
@@ -93,4 +115,16 @@ class GestureRecognizer:
     def release(self):
         self.cap.release()
         cv2.destroyAllWindows()
+
+
+    def get_average_confidences(self):
+        avg_confidences = {}
+        for gesture, stats in self.gesture_confidences.items():
+            count = stats["count"]
+            if count > 0:
+                avg_confidences[gesture] = stats["total_confidence"] / count
+            else:
+                avg_confidences[gesture] = 0.0
+        return avg_confidences
+
 

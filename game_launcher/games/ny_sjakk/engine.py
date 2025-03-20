@@ -40,25 +40,14 @@ class ChessEngine:
 
     def ai_move(self, skill_level=5):
         skill_level = max(1, min(10, skill_level))
-        stockfish_skill = (skill_level - 1) * 2  # Level 1 = 0, Level 10 = 18
+        stockfish_skill = (skill_level - 1) * 2
 
-        # Configure Stockfish Skill Level only — no ELO limit
         self.engine.configure({
             "Skill Level": stockfish_skill
         })
 
-        # Optional: use lower thinking time for beginner levels
-        if skill_level <= 3:
-            result = self.engine.play(self.board, chess.engine.Limit(time=0.2))  # very quick & sloppy
-        elif skill_level <= 6:
-            result = self.engine.play(self.board, chess.engine.Limit(time=0.5))
-        else:
-            result = self.engine.play(self.board, chess.engine.Limit(time=1.0))
-
-        self.board.push(result.move)
-        return result.move
-
-
+        result = self.engine.play(self.board, chess.engine.Limit(time=0.5))
+        return result.move  # Do not push yet — push after animation in main()
 
     def close(self):
         self.engine.quit()
