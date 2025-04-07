@@ -12,7 +12,7 @@ def game_loop():
     pygame.display.set_caption("Apples Catching")
     clock = pygame.time.Clock()
 
-    # Initialize game state
+
     game_state = reset_game()
     hand_tracker = HandTracker(WIDTH)
 

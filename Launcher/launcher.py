@@ -1,3 +1,4 @@
+import sys
 import pygame
 import os
 
@@ -39,13 +40,13 @@ def draw_hub(win, images, selected_index):
     pygame.display.flip()
 
 def run_gesture_hero():
-    os.system("python3 gesture_hero/main.py")
+    os.system(f"{sys.executable} gesture_hero/main.py")
 
 def run_apple_catcher():
-    os.system("python3 apple_catcher/main.py")
+    os.system(f"{sys.executable} apple_catcher/main.py")
 
 def run_chess():
-    os.system("python3 chess/main.py")
+    os.system(f"{sys.executable} chess/main.py")
 
 def game_hub_loop():
     selected_index = 0
