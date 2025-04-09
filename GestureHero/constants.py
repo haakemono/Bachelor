@@ -23,7 +23,7 @@ KEY_LABELS = ["A", "S", "D", "F"]
 
 # hit zone
 HIT_ZONE_X = 300  # where notes need to be hit
-HIT_TOLERANCE = 20  # how close a note needs to be to count as a hit
+HIT_TOLERANCE = 50  # how close a note needs to be to count as a hit
 
 # font
 pygame.font.init()
