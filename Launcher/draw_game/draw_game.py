@@ -1,5 +1,7 @@
+
 import pygame
 import sys
+from hand_tracking import get_finger_position, get_gesture_command, release_hand_tracker
 
 # Initialize
 pygame.init()
@@ -16,7 +18,6 @@ BLUE  = (0, 100, 255)
 
 PEN_RADIUS = 4
 POINTER_RADIUS = 6
-SPEED = 5
 
 # Colors and options
 COLOR_OPTIONS = [RED, GREEN, BLUE, BLACK]
@@ -24,15 +25,14 @@ CLEAR_OPTION_Y = HEIGHT - 80  # Position of "CLEAR" button
 
 # Setup screen & canvas
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Toolbar Drawing App")
+pygame.display.set_caption("Gesture Drawing App")
 canvas = pygame.Surface((WIDTH, HEIGHT))
 canvas.fill(WHITE)
 
 # Setup font
 font = pygame.font.SysFont(None, 24)
 
-# Initial position and color
-x, y = WIDTH // 2, HEIGHT // 2
+# Initial color
 selected_color = BLACK
 clock = pygame.time.Clock()
 
@@ -65,34 +65,37 @@ def get_toolbar_selection(px, py):
         return "CLEAR"
     return None
 
-
 running = True
 while running:
-    keys = pygame.key.get_pressed()
+    drawing = False
 
-    dx = dy = 0
-    if keys[pygame.K_LEFT]:
-        dx = -SPEED
-    if keys[pygame.K_RIGHT]:
-        dx = SPEED
-    if keys[pygame.K_UP]:
-        dy = -SPEED
-    if keys[pygame.K_DOWN]:
-        dy = SPEED
+    finger_pos = get_finger_position()
+    gesture = get_gesture_command()
 
-    x += dx
-    y += dy
-    x = max(0, min(WIDTH, x))
-    y = max(0, min(HEIGHT, y))
+    if finger_pos:
+        x, y = finger_pos
 
-    if keys[pygame.K_SPACE]:
-        selection = get_toolbar_selection(x, y)
-        if selection == "CLEAR":
-            canvas.fill(WHITE)
-        elif selection in COLOR_OPTIONS:
-            selected_color = selection
-        elif not in_toolbar(x, y):
+        # Tegn kun hvis utenfor toolbar og gesturen tilsier "tegn"
+        # Oppdater "drawing" status basert på gesture
+        if gesture == "F":
+            drawing = True
+        elif gesture is not None:
+            drawing = False
+
+        # Tegn så lenge "drawing" er aktiv
+        if drawing and not in_toolbar(x, y):
             pygame.draw.circle(canvas, selected_color, (x, y), PEN_RADIUS)
+
+
+        # Gestures som handlinger
+        if gesture == "A":
+            selected_color = RED
+        elif gesture == "B":
+            selected_color = BLUE
+        elif gesture == "C":
+            selected_color = GREEN
+        elif gesture == "D":
+            canvas.fill(WHITE)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -102,10 +105,12 @@ while running:
 
     screen.blit(canvas, (0, 0))
     draw_toolbar()
-    pygame.draw.circle(screen, BLACK, (x, y), POINTER_RADIUS, 1)
+    if finger_pos:
+        pygame.draw.circle(screen, BLACK, (x, y), POINTER_RADIUS, 1)
 
     pygame.display.flip()
     clock.tick(60)
 
+release_hand_tracker()
 pygame.quit()
 sys.exit()
