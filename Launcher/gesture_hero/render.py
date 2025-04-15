@@ -1,12 +1,8 @@
-import os
 import pygame
 from constants import FONT, GRAY, WIDTH, HEIGHT, WHITE, BLACK, GREEN, RED, BLUE, PURPLE
 
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-FONT_PATH = os.path.join(CURRENT_DIR, "assets", "futuristic.otf")
-
-FONT = pygame.font.Font(FONT_PATH, 36)
+FONT = pygame.font.Font("gesture_hero/assets/futuristic.otf", 36)
 
 # game backgrounds
 background = pygame.image.load("gesture_hero/assets/background.png")  

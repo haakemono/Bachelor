@@ -1,6 +1,6 @@
 import os
 import random
-from constants import KEYS, TOTAL_NOTES, HEIGHT, WIDTH
+from constants import KEYS, TOTAL_NOTES, HEIGHT, WIDTH, HIT_TOLERANCE, LATE_HIT_GRACE, HIT_ZONE_X
 
 
 def load_beatmap(filename):
@@ -26,7 +26,7 @@ def check_hit(event_key, notes, hit_zone_x, hit_tolerance):
     score = 0
     for note in notes:
         if not note["hit"] and note["key"] == event_key:
-            if abs(note["x"] - hit_zone_x) <= hit_tolerance:
+            if hit_zone_x - HIT_TOLERANCE <= note["x"] <= hit_zone_x + HIT_TOLERANCE + LATE_HIT_GRACE:
                 score += 1
                 note["hit"] = True  # mark the note as hit
     return score

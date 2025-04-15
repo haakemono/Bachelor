@@ -23,13 +23,12 @@ KEY_LABELS = ["A", "S", "D", "F"]
 
 # hit zone
 HIT_ZONE_X = 300  # where notes need to be hit
-HIT_TOLERANCE = 20  # how close a note needs to be to count as a hit
+HIT_TOLERANCE = 50  # how close a note needs to be to count as a hit (only counts BEFORE THE NOTE PASSES THE HIT ZONE)
+LATE_HIT_GRACE = 30 #tolerance for score increment despite hit after note passes hit zone
 
 # font
 pygame.font.init()
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-FONT_PATH = os.path.join(CURRENT_DIR, "assets", "futuristic.otf")
-FONT = pygame.font.Font(FONT_PATH, 36)
+FONT = pygame.font.Font(None, 50)
 
 #music file
 MUSIC_FILE = os.path.join(os.path.dirname(__file__), "music", "Level 1.mp3")
