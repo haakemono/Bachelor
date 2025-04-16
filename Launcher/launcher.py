@@ -1,5 +1,6 @@
 import sys
 import pygame
+import subprocess
 import os
 
 pygame.init()
@@ -57,18 +58,24 @@ def draw_hub(win, images, selected_index):
         win.blit(blurred, (0, y))
 
     pygame.display.flip()
+    
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def run_gesture_hero():
-    os.system(f"{sys.executable} gesture_hero/main.py")
+    path = os.path.join(BASE_DIR, "gesture_hero", "main.py")
+    subprocess.run(["python3", path])
 
 def run_apple_catcher():
-    os.system(f"{sys.executable} apple_catcher/main.py")
+    path = os.path.join(BASE_DIR, "apple_catcher", "main.py")
+    subprocess.run(["python3", path])
 
 def run_chess():
-    os.system(f"{sys.executable} chess/main.py")
+    path = os.path.join(BASE_DIR, "chess", "main.py")
+    subprocess.run(["python3", path])
 
 def run_draw_game():
-    os.system(f"{sys.executable} draw_game/draw_game.py")
+    path = os.path.join(BASE_DIR, "draw_game", "draw_game.py")
+    subprocess.run(["python3", path])
 
 def game_hub_loop():
     selected_index = 0
