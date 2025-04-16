@@ -22,6 +22,7 @@ W.I.P: High score system
 
 Chess:
 Navigate options menu with arrow keys
+Stockfish has to be downloaded externally and path has to be specified in main.py (this is W.I.P and will be fixed)
 
 Drawing game:
 
