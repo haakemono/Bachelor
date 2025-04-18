@@ -17,6 +17,7 @@ W.I.P: High score system, option to switch out letters on screen with actual han
 
 Apple Catcher:
 Press space twice in order to start the game.
+In game.py, there is a variable called "use_handtracking". Change this to 0 to enable object (handball) tracking. Having it on 1 makes it so the camera tracks your finger instead.
 
 W.I.P: High score system
 
