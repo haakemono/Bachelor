@@ -4,7 +4,7 @@ from hand_tracking import BallTracker, HandTracker
 from render_logic import draw, reset_game, start_menu, pause_game
 from constants import WIDTH, HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT, APPLE_RADIUS, BOMB_RADIUS
 
-use_handtracking = 1
+use_handtracking = 0 #set to 0 for object (handball) tracking, set to 1 for finger tracking
 
 def move_straight(objects, speed):
     return [(x, y + speed) for x, y in objects if y + APPLE_RADIUS < HEIGHT]
