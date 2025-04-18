@@ -110,7 +110,10 @@ def game_loop():
 
         player_x = hand_tracker.get_player_position()
         if player_x is not None:
-            game_state["player"].x = WIDTH - player_x - game_state["player"].width // 2
+            if use_handtracking == 1:
+                game_state["player"].x = WIDTH - player_x - game_state["player"].width // 2
+            else:
+                game_state["player"].x = player_x - game_state["player"].width // 2
         game_state["player"].x = max(0, min(WIDTH - PLAYER_WIDTH, game_state["player"].x))
 
         if game_state["frame_count"] % difficulty["apple_interval"] == 0 and difficulty["apple_interval"] is not None:
