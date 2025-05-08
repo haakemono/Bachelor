@@ -13,6 +13,16 @@ Gesture Hero:
 When letters pop up on screen during gameplay, line your hand up with the camera and do the corresponding hand sign in American Sign Language.
 Note that the terminal will give you a response on your current gesture.
 
+The player or nurse/physiotherapist can add songs to the game by adding the mp3 file of the song to the music folder in the game structure. Then, for integrating the song into the game, they can update the songs.json file for linking the file path and giving the song a title in the title screen, while also linking the song to a certain beat map.  
+
+To get the timing right, there should be around a three second gap until the desired melody starts. For the beat map, one should convert the BPM (beats per minute) of the song into milliseconds per beat. The formula for this will be:
+
+60000/BPM
+
+So, if the BPM is 130, as it is in our Level 2 song, it will be around 462 milliseconds per beat. This means that we should have an input every 462 milliseconds. If we skip beats in our song or if we want to add input for drums, synths or other sounds in the song, we can adjust manually. 
+
+
+
 W.I.P: High score system, option to switch out letters on screen with actual hand symbols
 
 Apple Catcher:
