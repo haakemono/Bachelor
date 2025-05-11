@@ -1,10 +1,24 @@
+import os
 import pygame
 from constants import PLAYER_HEIGHT, PLAYER_WIDTH, WIDTH, HEIGHT, FONT, APPLE_RADIUS, BOMB_RADIUS
 
-background_image = pygame.transform.scale(pygame.image.load("apple_catcher/img/background.png"), (WIDTH, HEIGHT))
-player_image = pygame.transform.scale(pygame.image.load("apple_catcher/img/player.png"), (PLAYER_WIDTH, PLAYER_HEIGHT))
-apple_image = pygame.transform.scale(pygame.image.load("apple_catcher/img/apple.png"), (APPLE_RADIUS * 2, APPLE_RADIUS * 2))
-bomb_image = pygame.transform.scale(pygame.image.load("apple_catcher/img/bomb.png"), (BOMB_RADIUS * 2, BOMB_RADIUS * 2))
+# Dynamically resolve the image directory
+BASE_PATH = os.path.dirname(__file__)
+IMG_PATH = os.path.join(BASE_PATH, "img")
+
+# Correct image loading with paths
+background_image = pygame.transform.scale(
+    pygame.image.load(os.path.join(IMG_PATH, "background.png")), (WIDTH, HEIGHT)
+)
+player_image = pygame.transform.scale(
+    pygame.image.load(os.path.join(IMG_PATH, "player.png")), (PLAYER_WIDTH, PLAYER_HEIGHT)
+)
+apple_image = pygame.transform.scale(
+    pygame.image.load(os.path.join(IMG_PATH, "apple.png")), (APPLE_RADIUS * 2, APPLE_RADIUS * 2)
+)
+bomb_image = pygame.transform.scale(
+    pygame.image.load(os.path.join(IMG_PATH, "bomb.png")), (BOMB_RADIUS * 2, BOMB_RADIUS * 2)
+)
 
 def draw_start_menu(selected_index):
     WIN = pygame.display.get_surface()

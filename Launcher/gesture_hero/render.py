@@ -1,22 +1,26 @@
 import pygame
 from constants import FONT, GRAY, WIDTH, HEIGHT, WHITE, BLACK, GREEN, RED, BLUE, PURPLE
+import os
+# Path helper
+base_path = os.path.dirname(__file__)
+def asset(filename):
+    return os.path.join(base_path, "assets", filename)
 
-
-FONT = pygame.font.Font("gesture_hero/assets/futuristic.otf", 36)
+# Font and image loading
+FONT = pygame.font.Font(asset("futuristic.otf"), 36)
 
 # game backgrounds
-background = pygame.image.load("gesture_hero/assets/background.png")  
-background = pygame.transform.scale(background, (WIDTH, HEIGHT))  
-background_x = 0  # Background scrolling position
+background = pygame.image.load(asset("background.png"))
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+background_x = 0
 
-main_menu_background = pygame.image.load("gesture_hero/assets/mainmenu.png")  
+main_menu_background = pygame.image.load(asset("mainmenu.png"))
 main_menu_background = pygame.transform.scale(main_menu_background, (WIDTH, HEIGHT))
 
-start_texture = pygame.image.load("gesture_hero/assets/startbutton.png")
-start_texture = pygame.transform.scale(start_texture, (200, 200))  # Adjust size if needed
+start_texture = pygame.image.load(asset("startbutton.png"))
+start_texture = pygame.transform.scale(start_texture, (200, 200))
 
-# load selection menu
-level_selection_bg = pygame.image.load("gesture_hero/assets/levelselection.png")
+level_selection_bg = pygame.image.load(asset("levelselection.png"))
 level_selection_bg = pygame.transform.scale(level_selection_bg, (WIDTH, HEIGHT))
 
 last_key_press_time = None

@@ -5,6 +5,8 @@ from constants import WIDTH, HEIGHT, NOTE_SPEED, HIT_ZONE_X, HIT_TOLERANCE
 from game_logic import generate_notes, check_hit
 from render import draw_pause_menu, draw_screen, draw_game_over, draw_start_menu, draw_song_menu
 from gesture_input import get_gesture_keypress, release_gesture_resources
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 pygame.init()
@@ -57,7 +59,6 @@ def start_music(song_file):
 
 def game_loop(selected_song):
     "Main game loop that runs until the song is finished."
-    from gesture_input import get_gesture_keypress, release_gesture_resources
 
     notes = generate_notes(selected_song["beatmap"])  
     score = 0
@@ -151,6 +152,7 @@ def game_over_loop(score, selected_song):
         draw_game_over(WIN, score)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                release_gesture_resources()
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
@@ -167,3 +169,4 @@ while True:
             continue  
     break
 release_gesture_resources()
+

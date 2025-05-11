@@ -1,7 +1,10 @@
 import pygame
 import sys
+import os
 import time
-from hand_tracking import get_finger_position, get_gesture_command, release_hand_tracker
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from shared_input.gesture_hand_tracking import get_finger_position, get_gesture_command, release_hand_tracker
 
 # Initialize
 pygame.init()
@@ -63,9 +66,10 @@ while running:
     if gesture:
         print(f"[Gesture Detected] {gesture}")
         if gesture == "F":
+            time.sleep(1)
             drawing = True
             print("Drawing mode ON")
-        elif gesture == "STOP":
+        elif gesture == "L":
             drawing = False
             print("Drawing mode OFF")
         elif current_time - last_tool_change > TOOL_CHANGE_COOLDOWN:
