@@ -14,7 +14,7 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Gesture Hero")
 
 def load_songs():
-    "Loads available songs from the JSON file."
+    #loads available songs from the JSON file
     base_path = os.path.dirname(__file__)  # gesture_hero/
     songs_path = os.path.join(base_path, "songs.json")
     with open(songs_path, "r") as f:
@@ -22,7 +22,7 @@ def load_songs():
     return data["songs"]
 
 def start_menu():
-    "Handles the transition from the start menu to song selection."
+    #handles the transition from the start menu to song selection
     while True:
         draw_start_menu(WIN)
         for event in pygame.event.get():
@@ -33,7 +33,7 @@ def start_menu():
                 return song_selection_menu()  
 
 def song_selection_menu():
-    "Displays the song selection menu and lets the user choose a song."
+    #displays the song selection menu and lets the user choose a song
     songs = load_songs()
     selected_song = 0  
     while True:
@@ -51,14 +51,15 @@ def song_selection_menu():
                     return songs[selected_song]  
 
 def start_music(song_file):
-    "Plays the selected song immediately."
+    #plays the selected song immediately."
     full_path = os.path.join(os.path.dirname(__file__), song_file)
     pygame.mixer.init()
     pygame.mixer.music.load(full_path)
     pygame.mixer.music.play()
 
 def game_loop(selected_song):
-    "Main game loop that runs until the song is finished."
+    #main game loop
+    from gesture_input import get_gesture_keypress, release_gesture_resources
 
     notes = generate_notes(selected_song["beatmap"])  
     score = 0
@@ -72,13 +73,13 @@ def game_loop(selected_song):
         current_time = pygame.time.get_ticks() - song_start_time
         draw_screen(WIN, notes, score, HIT_ZONE_X)
 
-        # Event-håndtering
+        #event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 release_gesture_resources()
                 exit()
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN: #handle keybind events
                 if event.key == pygame.K_p:
                     action = pause_menu()
                     if action == "menu":
@@ -92,11 +93,11 @@ def game_loop(selected_song):
                     score += result
                     key_char = pygame.key.name(event.key).upper()
                     if result > 0:
-                        print(f"🎯 Hit: {key_char} | Score: {score}")
+                        print(f"Hit: {key_char} | Score: {score}")
                     else:
-                        print(f"❌ Missed: {key_char} | Score: {score}")
+                        print(f"Missed: {key_char} | Score: {score}")
 
-        # Gesture hver frame, men kun når noter er innenfor treffsonen
+        #gesture every frame, but only when notes are within hit zone
         gesture_active = any(
             not note["hit"] and abs(note["x"] - HIT_ZONE_X) <= HIT_TOLERANCE
             for note in notes
@@ -108,16 +109,16 @@ def game_loop(selected_song):
                 score += result
                 key_char = pygame.key.name(gesture_key).upper()
                 if result > 0:
-                    print(f"🖐️🎯 Gesture Hit: {key_char} | Score: {score}")
+                    print(f" Gesture Hit: {key_char} | Score: {score}")
                 else:
-                    print(f"🖐️❌ Gesture Missed: {key_char} | Score: {score}")
+                    print(f"Gesture Missed: {key_char} | Score: {score}")
 
-        # Beveg noter
+        #move notes
         for note in notes:
-            if not note["hit"] and note["time"] <= current_time:
-                note["x"] -= NOTE_SPEED  
-            if note["x"] < HIT_ZONE_X - 50 and not note["hit"]:
-                note["hit"] = True 
+            if not note["hit"] and note["time"] <= current_time: #prevent multiple hits for same note
+                note["x"] -= NOTE_SPEED #move note towards left 
+            if note["x"] < HIT_ZONE_X - HIT_TOLERANCE and not note["hit"]:  #if note is hit correctly slighlty after passing the hit zone, it COULD still reward a point, the threshold can be changed in constants.py
+                note["hit"] = True #mark note as missed
         
         if all(note["hit"] for note in notes):
             running = False
@@ -130,7 +131,7 @@ def game_loop(selected_song):
 
 
 def pause_menu():
-    "Displays the pause menu and waits for input."
+    #displays the pause menu and waits for input.
     pygame.mixer.music.pause()
     while True:
         draw_pause_menu(WIN)
@@ -146,7 +147,7 @@ def pause_menu():
                     return "menu" 
 
 def game_over_loop(score, selected_song):
-    "Displays the game over screen and waits for restart or song selection."
+    #displays the game over screen and waits for restart or song selection
     pygame.mixer.music.stop()
     while True:
         draw_game_over(WIN, score)
@@ -169,4 +170,5 @@ while True:
             continue  
     break
 release_gesture_resources()
+
 
