@@ -6,26 +6,26 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from shared_input.gesture_hand_tracking import get_finger_position, get_gesture_command, release_hand_tracker
 
-# Initialize
 pygame.init()
 
 # Constants
 WIDTH, HEIGHT = 800, 600
-TOOLBAR_WIDTH = 100
+TOOLBAR_WIDTH = 100 
 
+#colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED   = (255, 0, 0)
 GREEN = (0, 200, 0)
 BLUE  = (0, 100, 255)
 
-PEN_RADIUS = 4
-POINTER_RADIUS = 6
+PEN_RADIUS = 4 #affects the drawing itself
+POINTER_RADIUS = 6 #cursor size
 
 COLOR_OPTIONS = [RED, GREEN, BLUE, BLACK]
-CLEAR_OPTION_Y = HEIGHT - 80
+CLEAR_OPTION_Y = HEIGHT - 80 #clear button location
 
-# Setup screen & canvas
+#setup screen & canvas
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Gesture Drawing App")
 canvas = pygame.Surface((WIDTH, HEIGHT))
@@ -35,11 +35,12 @@ font = pygame.font.SysFont(None, 24)
 
 selected_color = BLACK
 drawing = False
-last_tool_change = 0
-TOOL_CHANGE_COOLDOWN = 1.5  # seconds
+last_tool_change = 0 #time we last switched tools/color
+TOOL_CHANGE_COOLDOWN = 1.5  #seconds, prevent accidental switches
 
 clock = pygame.time.Clock()
 
+#draws the toolbar with color buttons and the clear button
 def draw_toolbar():
     pygame.draw.rect(screen, (200, 200, 200), (0, 0, TOOLBAR_WIDTH, HEIGHT))
     for i, color in enumerate(COLOR_OPTIONS):
@@ -50,10 +51,11 @@ def draw_toolbar():
     text = font.render("CLEAR", True, BLACK)
     screen.blit(text, (25, CLEAR_OPTION_Y + 10))
 
+#check if cursor is inside toolbar area
 def in_toolbar(px, py):
-    return px < TOOLBAR_WIDTH
+   return px < TOOLBAR_WIDTH
 
-# Main loop
+#main loop
 last_pos = None
 
 running = True
@@ -108,7 +110,7 @@ while running:
                 print(f"Dot drawn at {(x, y)}")
             last_pos = (x, y)
         else:
-            last_pos = None  # stop connecting lines when not drawing
+            last_pos = None  #stop connecting lines when not drawing
 
     # === Handle events ===
     for event in pygame.event.get():
