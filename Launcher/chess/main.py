@@ -1,16 +1,16 @@
 import pygame
 import chess
 import os
-import time
 from chessboard import ChessBoard
 from engine import ChessEngine
 from gesture_recognition import GestureRecognizer
 
 BASE_PATH = os.path.dirname(__file__)
 ASSETS_PATH = os.path.join(BASE_PATH, "assets")
-SQUARE_SIZE = 80
+SQUARE_SIZE = 90
 SCREEN_SIZE = SQUARE_SIZE * 8
 BAR_WIDTH = 20
+
 
 def evaluate_board(engine):
     piece_values = {
@@ -50,7 +50,8 @@ def start_menu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit(); exit()
+                pygame.quit()
+                exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     skill_level = max(1, skill_level - 1)
@@ -164,14 +165,15 @@ def main():
     screen = pygame.display.set_mode((SCREEN_SIZE + BAR_WIDTH + 200, SCREEN_SIZE + 30))  # Wider screen for sidebar
     pygame.display.set_caption("Chess")
 
-    try:
-        stockfish_path = r"C:\\Users\\haako\\OneDrive\\Documents\\Skole\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish-windows-x86-64-avx2.exe"
-        if not os.path.exists(stockfish_path):
-            raise FileNotFoundError()
-    except:
-        stockfish_path = "/opt/homebrew/bin/stockfish"
-        if not os.path.exists(stockfish_path):
-            raise FileNotFoundError("Install Stockfish first.")
+    stockfish_path = (
+        r"C:\\Users\\haako\\OneDrive\\Documents\\Skole\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish-windows-x86-64-avx2.exe"
+        if os.path.exists(r"C:\\Users\\haako\\OneDrive\\Documents\\Skole\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish-windows-x86-64-avx2.exe")
+        else "/opt/homebrew/bin/stockfish"
+    )
+
+    if not os.path.exists(stockfish_path):
+        raise FileNotFoundError("Install Stockfish first.")
+
 
     engine = ChessEngine(stockfish_path)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)

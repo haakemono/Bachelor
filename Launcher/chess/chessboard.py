@@ -16,8 +16,9 @@ class ChessBoard:
         images = {}
         for piece in pieces:
             image_path = os.path.join(self.assets_path, f"{piece}.png")
+            padding = 20
             images[piece] = pygame.transform.scale(
-                pygame.image.load(image_path), (self.square_size, self.square_size))
+                pygame.image.load(image_path), (self.square_size- padding, self.square_size - padding))
         return images
 
     def get_piece_image(self, piece):
@@ -29,8 +30,15 @@ class ChessBoard:
         self.draw_pieces(screen, skip_square=skip_square)
 
 
+
+
+
     def draw_board(self, screen):
         colors = [pygame.Color("#f0d9b5"), pygame.Color("#b58863")]
+        font = pygame.font.SysFont("Arial", 16)
+        file_labels = ["P", "L", "K", "J", "I", "O", "X", "Y"]
+        rank_labels = ["A", "B", "C", "D", "E", "F", "G", "H"]
+        
         for row in range(8):
             for col in range(8):
                 color = colors[(row + col) % 2]
@@ -38,19 +46,33 @@ class ChessBoard:
                     screen, color,
                     pygame.Rect(col * self.square_size, row * self.square_size, self.square_size, self.square_size)
                 )
+                if col == 0:
+                    rank_label_text = file_labels[row]
+                    rank_label = font.render(rank_label_text, True, pygame.Color("black"))
+                    screen.blit(rank_label, (5, row * self.square_size + 5))
+
+                # Draw custom file labels along bottom row
+                if row == 7:
+                    file_label_text = rank_labels[col]
+                    file_label = font.render(file_label_text, True, pygame.Color("black"))
+                    label_x = (col + 1) * self.square_size - font.size(file_label_text)[0] - 5
+                    label_y = self.square_size * 8 - 18
+                    screen.blit(file_label, (label_x, label_y))
+                
 
     def draw_pieces(self, screen, skip_square=None):
         board = self.engine.board
         for square in chess.SQUARES:
             if square == skip_square:
-                continue  # Skip drawing the animated piece’s old position
+                continue  
             piece = board.piece_at(square)
             if piece:
                 row = 7 - chess.square_rank(square)
                 col = chess.square_file(square)
                 piece_image = self.get_piece_image(piece)
                 if piece_image:
-                    screen.blit(piece_image, (col * self.square_size, row * self.square_size))
+                    padding = (self.square_size - piece_image.get_width()) //2
+                    screen.blit(piece_image, (col * self.square_size + padding, row * self.square_size + padding))
 
 
     def animate_move(self, screen, start_square, end_square, piece_image=None, duration=0.5):
@@ -73,8 +95,10 @@ class ChessBoard:
             y = int(start_pos[1] + (end_pos[1] - start_pos[1]) * t)
 
             screen.fill((0, 0, 0))
-            self.draw(screen, skip_square=start_square)  # Don't draw old position
+            self.draw(screen, skip_square=start_square)  
             if piece_image:
-                screen.blit(piece_image, (x, y))
+                offset_x = (self.square_size - piece_image.get_width()) // 2
+                offset_y = (self.square_size - piece_image.get_height()) // 2
+                screen.blit(piece_image, (x +offset_x, y + offset_y))
             pygame.display.flip()
             pygame.time.delay(int(1000 / 60))
