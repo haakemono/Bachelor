@@ -3,7 +3,7 @@ import chess
 import os
 from chessboard import ChessBoard
 from engine import ChessEngine
-from gesture_recognition import GestureRecognizer
+import gesture_recognition as gesture_recognizer
 
 """
 Constants for board setup and screen size
@@ -200,7 +200,7 @@ def main():
 
     engine = ChessEngine(stockfish_path)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)
-    gesture_recognizer = GestureRecognizer()
+    
 
     selecting = "file"
     selected_piece_square = None
