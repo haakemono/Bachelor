@@ -9,6 +9,36 @@ def asset(filename):
 # Font and image loading
 FONT = pygame.font.Font(asset("futuristic.otf"), 36)
 
+
+#game backgrounds
+background = pygame.image.load("gesture_hero/assets/background.png")  
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))  
+background_x = 0  #background scrolling position
+
+#menu backgrounds
+main_menu_background = pygame.image.load("gesture_hero/assets/mainmenu.png")  
+main_menu_background = pygame.transform.scale(main_menu_background, (WIDTH, HEIGHT))
+
+#start button
+start_texture = pygame.image.load("gesture_hero/assets/startbutton.png")
+start_texture = pygame.transform.scale(start_texture, (200, 200))  #adjust size if needed
+
+#load selection menu
+level_selection_bg = pygame.image.load("gesture_hero/assets/levelselection.png")
+
+# game backgrounds
+background = pygame.image.load(asset("background.png"))
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
+background_x = 0
+
+main_menu_background = pygame.image.load(asset("mainmenu.png"))
+main_menu_background = pygame.transform.scale(main_menu_background, (WIDTH, HEIGHT))
+
+start_texture = pygame.image.load(asset("startbutton.png"))
+start_texture = pygame.transform.scale(start_texture, (200, 200))
+
+level_selection_bg = pygame.image.load(asset("levelselection.png"))
+
 # game backgrounds
 background = pygame.image.load(asset("background.png"))
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
@@ -28,7 +58,7 @@ hit_zone_color = WHITE
 flash_effect_time = None
 
 def draw_pause_menu(win):
-    """Displays the pause menu with options, ensuring all text is centered."""
+    #displays the pause menu with options, ensuring all text is centered
     win.fill(BLACK)
     
     pause_text = FONT.render("PAUSED", True, RED)
@@ -44,16 +74,17 @@ def draw_pause_menu(win):
     win.blit(menu_text, menu_rect)
     
     pygame.display.flip()
+
 def draw_start_menu(win):
-    "Displays the start menu before the game begins."
+    #displays the start menu before the game begins
     win.blit(main_menu_background, (0, 0))  
     win.blit(start_texture, (WIDTH // 2 - 100, HEIGHT // 2 - 100))
     pygame.display.flip()
 
 def draw_song_menu(win, songs, selected_index):
-    "Displays the level selection menu with song options."
+    #displays the level selection menu with song options
     win.blit(level_selection_bg, (0, 0))  
-    # Display song options
+    #display song options
     for i, song in enumerate(songs):
         color = PURPLE if i == selected_index else WHITE
         song_text = FONT.render(song["title"], True, color)
@@ -65,7 +96,7 @@ def draw_song_menu(win, songs, selected_index):
     pygame.display.flip()
 
 def draw_screen(win, notes, score, hit_zone_x, key_pressed=None):
-    "Draws the game screen with horizontal moving notes."
+    #draws the game screen with horizontal moving notes
     global last_key_press_time, hit_zone_color, flash_effect_time, background_x
     current_time = pygame.time.get_ticks()
 
@@ -104,7 +135,7 @@ def draw_screen(win, notes, score, hit_zone_x, key_pressed=None):
     pygame.display.flip()
 
 def draw_game_over(win, score):
-    """Displays the game over screen with centered text."""
+    #displays the game over screen with centered text
     win.fill(BLACK)
     
     game_over_text = FONT.render("GAME OVER", True, RED)
@@ -120,3 +151,4 @@ def draw_game_over(win, score):
     win.blit(restart_text, restart_rect)
     
     pygame.display.flip()
+
