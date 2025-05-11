@@ -3,15 +3,20 @@ import chess
 import os
 from chessboard import ChessBoard
 from engine import ChessEngine
-import gesture_recognition as gesture_recognizer
+from gesture_recognition import GestureRecognizer
 
+"""
+Constants for board setup and screen size
+"""
 BASE_PATH = os.path.dirname(__file__)
 ASSETS_PATH = os.path.join(BASE_PATH, "assets")
 SQUARE_SIZE = 90
 SCREEN_SIZE = SQUARE_SIZE * 8
 BAR_WIDTH = 20
 
-
+"""
+Evaluates the current board state based on piece values (basic heuristic)
+"""
 def evaluate_board(engine):
     piece_values = {
         chess.PAWN: 1,
@@ -29,6 +34,9 @@ def evaluate_board(engine):
             evaluation += value if piece.color else -value
     return evaluation
 
+"""
+Displays a simple start menu where user selects AI skill level and control mode
+"""
 def start_menu():
     pygame.init()
     screen = pygame.display.set_mode((600, 400))
@@ -61,7 +69,9 @@ def start_menu():
                     control_mode_index = (control_mode_index + 1) % len(control_modes)
                 elif event.key == pygame.K_RETURN:
                     return skill_level, control_modes[control_mode_index]
-
+"""
+Gets user input via gesture or mouse depending on selected control mode
+"""
 def get_player_input(events, control_mode, gesture_recognizer=None):
     if control_mode == "gesture":
         gesture = gesture_recognizer.get_move_gesture()
@@ -76,6 +86,10 @@ def get_player_input(events, control_mode, gesture_recognizer=None):
                     return ("mouse", file, rank)
     return None
 
+"""
+Handles piece selection and movement using mouse input
+Returns updated selection state and move info
+"""
 def handle_mouse_input(input_result, selecting, engine, selected_piece_square, valid_moves):
     if selecting == "file":
         selected_file, selected_rank = input_result[1], input_result[2]
@@ -90,6 +104,10 @@ def handle_mouse_input(input_result, selecting, engine, selected_piece_square, v
         return "move", (target_file, target_rank), None, None, []
     return selecting, None, None, None, valid_moves
 
+"""
+Handles piece selection and movement using gestures
+Converts gestures to board coordinates and builds a move
+"""
 def handle_gesture_input(gesture, selecting, engine, gesture_recognizer,
                          selected_file, selected_rank, selected_piece_square,
                          valid_moves, target_file, target_rank):
@@ -131,7 +149,9 @@ def handle_gesture_input(gesture, selecting, engine, gesture_recognizer,
                 selecting = "file"
 
     return selecting, selected_file, selected_rank, selected_piece_square, valid_moves, target_file, target_rank
-
+"""
+Displays the game over screen and waits for user to restart or quit
+"""
 def show_game_over_screen(result):
     pygame.init()
     screen = pygame.display.set_mode((600, 400))
@@ -158,7 +178,10 @@ def show_game_over_screen(result):
                 elif event.key == pygame.K_r:
                     main()
                     return
-
+"""#
+The main function sets up the chess game, handles user input, draws the board, runs AI moves, 
+and keeps the game loop running until the player quits or restarts.
+"""
 def main():
     skill_level, control_mode = start_menu()
     pygame.init()
@@ -177,6 +200,7 @@ def main():
 
     engine = ChessEngine(stockfish_path)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)
+    gesture_recognizer = GestureRecognizer()
 
     selecting = "file"
     selected_piece_square = None
@@ -216,7 +240,6 @@ def main():
         events = pygame.event.get()
         for e in events:
             if e.type == pygame.QUIT:
-                gesture_recognizer.release()
                 pygame.quit()
                 engine.close()
                 gesture_recognizer.print_average_confidences()

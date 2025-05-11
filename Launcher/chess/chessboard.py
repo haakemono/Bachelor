@@ -3,6 +3,11 @@ import pygame
 import chess
 import os
 
+"""#
+Chessboard class for managing the visual chessboard.
+It sets up the board with the engine, asset path, and square size,
+loads and scale piece image and handles drawing piece and the board.
+"""
 class ChessBoard:
     def __init__(self, engine, assets_path, square_size):
         self.engine = engine
@@ -28,10 +33,9 @@ class ChessBoard:
     def draw(self, screen, skip_square=None):
         self.draw_board(screen)
         self.draw_pieces(screen, skip_square=skip_square)
-
-
-
-
+    """
+    Draws the chessboard and adds custom ranks (bottom) and file (sides) labels to the screen
+    """
 
     def draw_board(self, screen):
         colors = [pygame.Color("#f0d9b5"), pygame.Color("#b58863")]
@@ -59,7 +63,10 @@ class ChessBoard:
                     label_y = self.square_size * 8 - 18
                     screen.blit(file_label, (label_x, label_y))
                 
-
+    """
+    Draws all chess pieces on the board
+    Each piece image is centered within its square using padding
+    """
     def draw_pieces(self, screen, skip_square=None):
         board = self.engine.board
         for square in chess.SQUARES:
@@ -74,7 +81,10 @@ class ChessBoard:
                     padding = (self.square_size - piece_image.get_width()) //2
                     screen.blit(piece_image, (col * self.square_size + padding, row * self.square_size + padding))
 
-
+        """
+        Animates a piece moving from one square to another.
+        The board is redrawn each frame, and the piece position is updated step by step.
+        """
     def animate_move(self, screen, start_square, end_square, piece_image=None, duration=0.5):
         start_file = chess.square_file(start_square)
         start_rank = 7 - chess.square_rank(start_square)
