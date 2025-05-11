@@ -1,8 +1,11 @@
-# shared_input/base.py
-
 import os
 import joblib
 import tensorflow as tf
+
+""" 
+Loads gesture recognition model, label encoder, and feature scaler
+Returns the loaded Keras model, encoder, and scaler objects.
+"""
 
 def load_model_and_scaler(model_path="gesture_recognition_model.h5",
                           encoder_path="label_encoder.pkl",

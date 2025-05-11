@@ -5,7 +5,7 @@ import threading
 import numpy as np
 
 # -------------------------------
-# HAND TRACKING CONTROLLER (commented out for now)
+# HAND TRACKING CONTROLLER 
 # -------------------------------
 
 class HandTracker:
@@ -28,6 +28,14 @@ class HandTracker:
         self.thread = threading.Thread(target=self._capture_frames, daemon=True)
         self.thread.start()
 
+
+
+    """
+    Continuously captures frames from the webcam in a background thread.
+
+    - Resizes each frame to 320x240.
+    - Stores the latest frame in a shared variable with thread-safe access.
+    """
     def _capture_frames(self):
         while self.running:
             ret, frame = self.cap.read()
@@ -35,6 +43,14 @@ class HandTracker:
                 with self.lock:
                     self.frame = cv2.resize(frame, (320, 240))
 
+
+    """
+    Processes the latest captured frame to estimate the player's horizontal position.
+
+    - Converts the frame to RGB and runs hand landmark detection.
+    - Extracts the x-position of the index fingertip.
+    - Scales the x-position to the game width and stores it in a position history buffer.
+    """
     def get_player_position(self):
         with self.lock:
             if self.frame is None:
@@ -54,12 +70,24 @@ class HandTracker:
 
         return None
 
+
+    """
+    Applies smoothing to the player's recent x-positions.
+
+    - Uses the position history to reduce jitter in hand movement.
+    - The smoothing factor 'alpha' controls responsiveness (closer to 1 = more responsive).
+    - Returns the final smoothed x-position as an integer.
+    """
     def _exponential_smoothing(self, alpha=0.3):
         smoothed_x = self.position_history[0]
         for x in self.position_history:
             smoothed_x = alpha * x + (1 - alpha) * smoothed_x
         return int(smoothed_x)
 
+
+    """
+    Shuts down the hand tracker and releases all resources.
+    """
     def release(self):
         self.running = False
         self.thread.join()
@@ -71,7 +99,7 @@ class HandTracker:
         self.position_history.clear()
 
 # -------------------------------
-# BALL TRACKING CONTROLLER (active now)
+# BALL TRACKING CONTROLLER
 # -------------------------------
 
 class BallTracker:
@@ -92,6 +120,14 @@ class BallTracker:
         self.param2 = 65
         self.min_dist = 39
 
+
+    """
+    Detects a ball in the given frame using the Hough Circle Transform.
+
+    - Converts the frame to grayscale and applies Gaussian blur.
+    - Uses predefined parameters to detect circles (potential balls).
+    - Returns a bounding box (x, y, width, height) around the first detected circle.
+    """
     def detect_ball(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (9, 9), 2)
@@ -115,12 +151,22 @@ class BallTracker:
             return bbox
         return None
 
+
+    """
+    Initializes the KCF tracker with the given frame and bounding box.
+
+    - Starts tracking the specified bounding box within the frame.
+    """
     def initialize_tracker(self, frame, bbox):
-        self.tracker = cv2.TrackerKCF_create()  # if legacy isn't needed
+        self.tracker = cv2.TrackerKCF_create()  
         self.tracker.init(frame, bbox)
         self.tracking = True
         self.bbox = bbox
 
+
+    """
+    Updates the tracker with a new frame to follow the ball's movement.
+    """
     def update_tracker(self, frame):
         success, bbox = self.tracker.update(frame)
         if success:
@@ -131,6 +177,16 @@ class BallTracker:
             self.tracker = None
             return False
 
+
+    """
+    Determines the player's horizontal position based on the tracked ball.
+
+    - Captures a new frame and horizontally flips it.
+    - If tracking is active, attempts to update the tracker.
+        - If tracking fails, re-detects the ball and reinitializes tracking.
+    - If tracking is successful, calculates the horizontal center of the ball
+      and scales it to the game width.
+    """
     def get_player_position(self):
         ret, frame = self.cap.read()
         if not ret:
@@ -156,16 +212,9 @@ class BallTracker:
 
         return None
 
+    """
+    Releases the webcam resource if it is currently open.
+    """
     def release(self):
         if self.cap.isOpened():
             self.cap.release()
-
-# -------------------------------
-# Example Usage in Apple Catcher Game
-# -------------------------------
-# controller = HandTracker(game_width)  ← COMMENT THIS OUT
-# controller = BallTracker(game_width)  ← USE THIS INSTEAD
-
-# In your game loop:
-# player_x = controller.get_player_position()
-

@@ -1,5 +1,3 @@
-# shared_input/gesture.py
-
 from .base import load_model_and_scaler
 import cv2
 import numpy as np
@@ -26,6 +24,17 @@ class GestureRecognizer:
         self.thread.daemon = True
         self.thread.start()
 
+
+
+    """
+    Continuously captures webcam frames and detects hand gestures in a background thread.
+
+    - Uses MediaPipe to extract hand landmarks.
+    - Scales the landmarks and feeds them into a trained gesture recognition model.
+    - Checks if the predicted gesture matches the last one and is held for a specified duration.
+    - If so, saves it as the latest confirmed gesture 
+    - Runs until the tracker is released.
+    """
     def _gesture_loop(self):
         last_prediction = None
         gesture_start_time = None
@@ -67,12 +76,21 @@ class GestureRecognizer:
 
             time.sleep(0.03)
 
+
+    """
+    Returns the most recently confirmed gesture and clears it.
+    """
     def get_latest_gesture(self):
         with self.lock:
             g = self.latest_gesture
             self.latest_gesture = None
             return g
 
+
+    """
+    Stops the gesture recognition thread and releases all resources.
+    - Releases the webcam and closes any OpenCV windows.
+    """
     def release(self):
         self.running = False
         self.thread.join()
