@@ -3,7 +3,7 @@ import chess
 import os
 from chessboard import ChessBoard
 from engine import ChessEngine
-from gesture_recognition import GestureRecognizer
+import gesture_recognition as gesture_recognizer
 
 BASE_PATH = os.path.dirname(__file__)
 ASSETS_PATH = os.path.join(BASE_PATH, "assets")
@@ -177,7 +177,6 @@ def main():
 
     engine = ChessEngine(stockfish_path)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)
-    gesture_recognizer = GestureRecognizer()
 
     selecting = "file"
     selected_piece_square = None
@@ -217,6 +216,7 @@ def main():
         events = pygame.event.get()
         for e in events:
             if e.type == pygame.QUIT:
+                gesture_recognizer.release()
                 pygame.quit()
                 engine.close()
                 gesture_recognizer.print_average_confidences()

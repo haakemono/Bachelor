@@ -1,10 +1,14 @@
 import pygame
 import random
-from hand_tracking import BallTracker, HandTracker
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from shared_input.tracking import BallTracker, HandTracker
 from render_logic import draw, reset_game, start_menu, pause_game
 from constants import WIDTH, HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT, APPLE_RADIUS, BOMB_RADIUS
 
-use_handtracking = 0 #set to 0 for object (handball) tracking, set to 1 for finger tracking
+use_handtracking = 1 #set to 0 for object (handball) tracking, set to 1 for finger tracking
 
 def move_straight(objects, speed):
     return [(x, y + speed) for x, y in objects if y + APPLE_RADIUS < HEIGHT]
@@ -49,14 +53,13 @@ def game_loop():
     pygame.display.set_caption("Apples Catching")
     clock = pygame.time.Clock()
     difficulty = start_menu()
-
     print(f"Selected Difficulty: {difficulty}")  # Debugging print
 
     game_state = reset_game()
     game_state["start_time"] = pygame.time.get_ticks()  # Track start time
     print(f"Game Started! Initial Start Time: {game_state['start_time']}")  # Debugging print
     if use_handtracking == 1:
-        hand_tracker = HandTracker(WIDTH)
+        hand_tracker = HandTracker(WIDTH, HEIGHT)
     else:
         hand_tracker = BallTracker(WIDTH)
     run = True
@@ -64,6 +67,7 @@ def game_loop():
     while run:
         clock.tick(60)
         game_state["frame_count"] += 1
+        player_x = None
 
 
         for event in pygame.event.get():
@@ -108,13 +112,21 @@ def game_loop():
         if game_state["game_over"]:
             continue  # Skip processing if game is over
 
-        player_x = hand_tracker.get_player_position()
-        if player_x is not None:
+        position = hand_tracker.get_player_position()
+
+        if position is not None:
+            # Always extract only the horizontal x-position as an integer
+            player_x = position[0] if isinstance(position, tuple) else position
+
             if use_handtracking == 1:
                 game_state["player"].x = WIDTH - player_x - game_state["player"].width // 2
             else:
                 game_state["player"].x = player_x - game_state["player"].width // 2
-        game_state["player"].x = max(0, min(WIDTH - PLAYER_WIDTH, game_state["player"].x))
+
+            game_state["player"].x = max(0, min(WIDTH - PLAYER_WIDTH, game_state["player"].x))
+
+
+
 
         if game_state["frame_count"] % difficulty["apple_interval"] == 0 and difficulty["apple_interval"] is not None:
             apple_x = random.randint(APPLE_RADIUS, WIDTH - APPLE_RADIUS)
