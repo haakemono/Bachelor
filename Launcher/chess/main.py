@@ -191,20 +191,21 @@ def main():
     # UNIVERSAL STOCKFISH PATH HANDLING
     base_path = os.path.dirname(os.path.abspath(__file__))
     stockfish_folder = os.path.join(base_path, "stockfish")
-    possible_names = ["stockfish", "stockfish.exe"]
 
-    stockfish_path = next(
-        (os.path.join(stockfish_folder, name) for name in possible_names
-         if os.path.exists(os.path.join(stockfish_folder, name))),
-        None
-    )
+    stockfish_path = None
+    for filename in os.listdir(stockfish_folder):
+        if filename.lower().startswith("stockfish"):
+            full_path = os.path.join(stockfish_folder, filename)
+            if os.access(full_path, os.X_OK):  
+                stockfish_path = full_path
+                break
 
     if not stockfish_path:
         raise FileNotFoundError(
-            "Stockfish binary not found.\n"
-            "Download it from https://stockfishchess.org/download/ and place it in:\n"
+        "Stockfish binary not found.\n"
+        "Download it from https://stockfishchess.org/download/ and place it in:\n"
             f"{stockfish_folder}"
-        )
+    )
 
     # Initialize engine with the detected path
     engine = ChessEngine(stockfish_path)
