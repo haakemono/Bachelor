@@ -188,18 +188,28 @@ def main():
     screen = pygame.display.set_mode((SCREEN_SIZE + BAR_WIDTH + 200, SCREEN_SIZE + 30))  # Wider screen for sidebar
     pygame.display.set_caption("Chess")
 
-    stockfish_path = (
-        r"C:\\Users\\haako\\OneDrive\\Documents\\Skole\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish-windows-x86-64-avx2.exe"
-        if os.path.exists(r"C:\\Users\\haako\\OneDrive\\Documents\\Skole\\stockfish-windows-x86-64-avx2\\stockfish\\stockfish-windows-x86-64-avx2.exe")
-        else "/opt/homebrew/bin/stockfish"
+    # UNIVERSAL STOCKFISH PATH HANDLING
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    stockfish_folder = os.path.join(base_path, "stockfish")
+    possible_names = ["stockfish", "stockfish.exe"]
+
+    stockfish_path = next(
+        (os.path.join(stockfish_folder, name) for name in possible_names
+         if os.path.exists(os.path.join(stockfish_folder, name))),
+        None
     )
 
-    if not os.path.exists(stockfish_path):
-        raise FileNotFoundError("Install Stockfish first.")
+    if not stockfish_path:
+        raise FileNotFoundError(
+            "Stockfish binary not found.\n"
+            "Download it from https://stockfishchess.org/download/ and place it in:\n"
+            f"{stockfish_folder}"
+        )
 
-
+    # Initialize engine with the detected path
     engine = ChessEngine(stockfish_path)
     chessboard = ChessBoard(engine, ASSETS_PATH, SQUARE_SIZE)
+
     
 
     selecting = "file"
