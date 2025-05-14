@@ -12,9 +12,9 @@ Built with:
 
 
 ### Prerequisites
-- Python 3.9 or greater
+- Python 3.9 is recommended
 - pip
-- Visual Studio Code
+- Visual Studio Code (not nescessary but highly recommended)
 
 ---
 ## Getting Started
@@ -31,13 +31,13 @@ cd Bachelor
 **Windows/Linux:**
 
 ```bash
-pip install pygame mediapipe joblib tensorflow opencv-python python-chess scikit-learn
+pip install pygame mediapipe joblib tensorflow opencv-python python-chess scikit-learn numpy
 ```
 
 **macOS (Apple Silicon):**
 
 ```bash
-pip install pygame mediapipe joblib tensorflow-macos tensorflow-metal opencv-python python-chess scikit-learn
+pip install pygame mediapipe joblib tensorflow-macos tensorflow-metal opencv-python python-chess scikit-learn numpy
 ```
 
 ### 3. Launch the Game Suite
@@ -48,7 +48,13 @@ python main.py
 ```
 
 ---
-
+### 4. Install Stockfish
+In order to get the Chess game to work one has to install [Stockfish](https://stockfishchess.org/download/) seperately.
+* After downloading, unzip the folder
+* Locate the "stockfish" folder wherever it was unzipped
+* Copy the contents of this folder and paste in Bachelor/Launcher/chess/stockfish in the source code.
+* One may still get a malware error on MacOS when launching Chess. This is solved by going into Settings>Privacy and Security>Security and pressing allow on Stockfish.
+___  
 ## Launcher Instructions
 
 Use the **arrow keys** to navigate the launcher menu.  
@@ -76,8 +82,8 @@ You can add your own songs by doing the following:
 
 #### Beat Map Timing
 
-To sync the song to gameplay:
-- Wait around **3 seconds** before the melody starts.
+To sync the added song to gameplay:
+- Make sure there is a 3 second gap from when the mp3 file starts playing to the first beat
 - Use this formula to calculate beat interval:
 
 ```
@@ -86,21 +92,16 @@ Milliseconds per beat = 60000 / BPM
 
 **Example:**  
 If your song has a BPM of 130:  
-`60000 / 130 = ~462 milliseconds per beat`
+`60000 / 130 = ~462 milliseconds between beats`
 
 You can customize the timing or skip beats to match different instruments (e.g. drums, synths).
-
-#### Work in Progress:
-- High score system  
-- Option to show hand symbols instead of letters  
-
 ---
 
 ### Apple Catcher
 
 - Press **spacebar twice** to start the game.
-- In `game.py`, locate the `use_handtracking` variable:
-  - Set to `1` for finger tracking.
+- If you want to change trackinng mode, in `game.py`, locate the `use_handtracking` variable:
+  - Set to `1` for finger tracking (default).
   - Set to `0` for object tracking (e.g., a small ball in your hand).
 
 ---
@@ -108,17 +109,19 @@ You can customize the timing or skip beats to match different instruments (e.g. 
 ### Chess
 
 - Use arrow keys to navigate the options menu.
-- Requires the **Stockfish chess engine**:
-  - Download it from [https://stockfishchess.org/download/](https://stockfishchess.org/download/)
-  - Set the correct file path in `main.py` under the `engine_path` variable.
-
-This process will be automated in a future update.
-
 ---
 
 ### Drawing Game
 
-This is still a work in progress, but basic hand-tracked drawing functionality works.
+Make the ASL sign for:
+
+* F to start drawing
+* L to stop drawing
+* A to switch color to red
+* B to switch color to blue
+* C to switch color to green
+* E to equip the eraser
+* D to clear the canvas
 
 ---
 
@@ -192,11 +195,11 @@ Bachelor/
 ```
 ## Gameplay tutorials
 
-### signlaguage used
+### Gestures used
+![Gestures](https://github.com/user-attachments/assets/1b6520c1-637b-4f80-9fb9-228c4ce3cc54)
+
 
 ### Video tutorials of the gameplay
-
-
 ---
 
 ## Documentation and Resources
