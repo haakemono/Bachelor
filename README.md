@@ -207,7 +207,8 @@ Bachelor/
 - [Video Demonstration of Draw Game](https://youtu.be/D5UQdGqIIBw)  
 - [Video Demonstration of Apple Catcher](https://youtu.be/iReqirHHHMs)  
 ---
-
+## AI Declaration
+Background images and figures are gneraeted by ChatGPT 4o by OpenAI.
 ## Documentation and Resources
 
 - [PyGame Documentation](https://www.pygame.org/docs/)  
