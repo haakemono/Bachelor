@@ -1,5 +1,8 @@
 # Bachelor
-## About the project
+## About the Project  
+This project explores gesture recognition and hand tracking to create accessible and engaging games. The system includes a launcher and multiple interactive games that respond to hand gestures and movement using computer vision and machine learning.
+
+---
 ## Getting started
 ### Download Instructions
 In order to launch the games, navigate to the Launcher using
