@@ -151,7 +151,7 @@ Bachelor/
 │   ├── chess/
 │   │   ├── __pycache__/
 │   │   ├── assets/
-│   │   ├── stockfish/
+│   │   ├── stockfish/ (Place content of zip file in here)
 │   │   ├── chessboard.py
 │   │   ├── engine.py
 │   │   ├── gesture_recognition.py
