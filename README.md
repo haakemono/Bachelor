@@ -200,7 +200,12 @@ Bachelor/
 ![Gestures](https://github.com/user-attachments/assets/1b6520c1-637b-4f80-9fb9-228c4ce3cc54)
 
 
-### Video tutorials of the gameplay
+### Video tutorials of the gameplay  
+
+- [Video Demonstration of Chess](https://youtu.be/c6FOaJa5Ivw)  
+- [Video Demonstration of Gesture Hero](https://youtu.be/CdLEewWx-nU)  
+- [Video Demonstration of Draw Game](https://youtu.be/D5UQdGqIIBw)  
+- [Video Demonstration of Apple Catcher](https://youtu.be/iReqirHHHMs)  
 ---
 
 ## Documentation and Resources
