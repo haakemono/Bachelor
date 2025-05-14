@@ -95,6 +95,7 @@ If your song has a BPM of 130:
 `60000 / 130 = ~462 milliseconds between beats`
 
 You can customize the timing or skip beats to match different instruments (e.g. drums, synths).
+
 ---
 
 ### Apple Catcher
