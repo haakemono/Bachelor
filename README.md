@@ -1,6 +1,7 @@
 # Bachelor
-
-## Download Instructions
+## About the project
+## Getting started
+### Download Instructions
 In order to launch the games, navigate to the Launcher using
 **cd Bachelor/Launcher** in Visual Studio Code.
 Use the following command to install the needed packages:
