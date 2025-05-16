@@ -211,13 +211,17 @@ Bachelor/
 - [Video Demonstration of Apple Catcher (Ball Tracking)](https://youtu.be/XaR_7jP8GpA)
 ---
 
-## Documentation and Resources
+## Licenses
 
-- [PyGame Documentation](https://www.pygame.org/docs/)  
-- [MediaPipe Documentation](https://developers.google.com/mediapipe/)  
-- [JobLib Documentation](https://joblib.readthedocs.io/en/stable/)  
-- [TensorFlow Documentation](https://www.tensorflow.org/api_docs)  
-- [OpenCV Documentation](https://docs.opencv.org/4.x/index.html)  
-- [Python Chess Documentation](https://python-chess.readthedocs.io/en/latest/)  
-- [scikit-learn Documentation](https://scikit-learn.org/stable/)  
-- [Stockfish Documentation](https://official-stockfish.github.io/docs/)
+- [PyGame License](https://www.pygame.org/docs/LGPL.txt)  
+- [MediaPipe License](https://github.com/joblib/joblib/blob/main/LICENSE.txt)  
+- [JobLib License](https://joblib.readthedocs.io/en/stable/)  
+- [TensorFlow License](https://github.com/tensorflow/examples/blob/master/LICENSE)  
+- [OpenCV License](https://github.com/opencv/opencv/blob/4.x/LICENSE)  
+- [Python Chess License](https://github.com/niklasf/python-chess/blob/master/LICENSE.txt)  
+- [scikit-learn License](https://github.com/SciSharp/scikit-learn.net/blob/master/LICENSE)  
+- [Stockfish License](https://github.com/official-stockfish/Stockfish/blob/master/Copying.txt)
+- [NumPy License](https://numpy.org/doc/stable/license.html)
+- [Keras License](https://github.com/keras-team/keras/blob/master/LICENSE)
+- [Python License](https://docs.python.org/3/license.html#)
+- [JSON License](https://www.json.org/license.html)
