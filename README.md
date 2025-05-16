@@ -220,3 +220,4 @@ Bachelor/
 - [OpenCV Documentation](https://docs.opencv.org/4.x/index.html)  
 - [Python Chess Documentation](https://python-chess.readthedocs.io/en/latest/)  
 - [scikit-learn Documentation](https://scikit-learn.org/stable/)  
+- [Stockfish Documentation](https://official-stockfish.github.io/docs/)
