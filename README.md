@@ -205,7 +205,8 @@ Bachelor/
 - [Video Demonstration of Chess](https://youtu.be/c6FOaJa5Ivw)  
 - [Video Demonstration of Gesture Hero](https://youtu.be/CdLEewWx-nU)  
 - [Video Demonstration of Draw Game](https://youtu.be/D5UQdGqIIBw)  
-- [Video Demonstration of Apple Catcher](https://youtu.be/iReqirHHHMs)  
+- [Video Demonstration of Apple Catcher](https://youtu.be/iReqirHHHMs)
+- [Video Demonstration of Apple Catcher (Ball Tracking)](https://youtu.be/XaR_7jP8GpA)
 ---
 
 ## Documentation and Resources
