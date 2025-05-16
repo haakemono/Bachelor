@@ -110,6 +110,8 @@ You can customize the timing or skip beats to match different instruments (e.g. 
 ### Chess
 
 - Use arrow keys to navigate the options menu.
+- In the Chess game, the pieces are controlled on the board through gesture recognition. The squares on the board are selected by performing two separate gestures. The first gesture will select a column and the second selects a row. After the square with the desired piece has been selected, the player repeats the process to choose destination square.
+- Current gesture information can be found in the terminal
 ---
 
 ### Drawing Game
